@@ -8,8 +8,11 @@
 ComtradeViewer/
 │
 ├── .gitignore                      # Исключает временные файлы Visual Studio и VS Code
+├── .github/
+│   └── workflows/
+│       └── ci.yml                  # Конфигурация GitHub Actions
 ├── README.md                       # Документация проекта
-├── ComtradeViewer.sln              # Общий файл решения
+├── ComtradeViewer.slnx             # Общий файл решения
 │
 ├── ComtradeViewer.Model/           # Слой парсинга и бизнес-логики (Class Library, net40)
 │   ├── ComtradeViewer.Model.csproj 
@@ -35,9 +38,3 @@ ComtradeViewer/
         ├── MainWindow.xaml         # Разметка главного окна на XAML (кнопки, графики)
         └── MainWindow.xaml.cs
 ```
----
-
-## Архитектурные правила:
-1. **Model** — полностью изолированная библиотека классов.
-2. **ViewModel** ссылается только на **Model**.
-3. **View** ссылается на **ViewModel** и отвечает исключительно за отрисовку графики через WPF.
