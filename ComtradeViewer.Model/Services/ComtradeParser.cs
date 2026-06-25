@@ -7,7 +7,7 @@ using ComtradeViewer.Model.Models;
 
 namespace ComtradeViewer.Model.Services
 {
-    public class ComtradeParser
+    public class ComtradeParser : IComtradeParser
     {
         public Dictionary<string, List<SamplePoint>> Parse(string cfgPath, string datPath)
         {
