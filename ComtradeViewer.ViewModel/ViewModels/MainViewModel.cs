@@ -10,17 +10,17 @@ namespace ComtradeViewer.ViewModel.ViewModels
     public class MainViewModel : ViewModelBase
     {
         private Dictionary<string, List<SamplePoint>> _parsedData;
-        
+
         private string _selectedChannel;
         private List<SamplePoint> _chartPoints;
         private double _chartWidth = 1000;
 
         private readonly IComtradeParser _parser;
 
-        public MainViewModel() : this(new ComtradeParser()) 
-        { 
+        public MainViewModel() : this(new ComtradeParser())
+        {
         }
-        
+
         public MainViewModel(IComtradeParser parser)
         {
             _parser = parser;
