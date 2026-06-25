@@ -30,7 +30,7 @@ ComtradeViewer/
 │   └── ViewModels/
 │       └── MainViewModel.cs        # Обрабатывает команды кнопок и готовит данные для графиков
 │
-└── ComtradeViewer.View/            # Графический интерфейс (WPF Application, net40) — ТОЛЬКО ДЛЯ WINDOWS
+└── ComtradeViewer.View/            # Графический интерфейс (WPF Application, net40)
     ├── ComtradeViewer.View.csproj  
     ├── App.xaml                    
     ├── App.xaml.cs                 
