@@ -5,7 +5,7 @@ namespace ComtradeViewer.Model.Models
         public int Index { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Unit { get; set; } = string.Empty;
-        public double FactorA { get; set; } 
-        public double FactorB { get; set; } 
+        public double FactorA { get; set; }
+        public double FactorB { get; set; }
     }
 }

@@ -54,13 +54,13 @@ namespace ComtradeViewer.Model.Services
                     if (string.IsNullOrWhiteSpace(line)) continue;
 
                     string[] tokens = line.Split(',');
-                    
-                    double timeMs = double.Parse(tokens[1].Trim()) / 1000.0; 
+
+                    double timeMs = double.Parse(tokens[1].Trim()) / 1000.0;
 
                     for (int i = 0; i < totalAnalog; i++)
                     {
                         double rawValue = double.Parse(tokens[2 + i].Trim(), CultureInfo.InvariantCulture);
-                        
+
                         double physicalValue = rawValue * analogChannels[i].FactorA + analogChannels[i].FactorB;
 
                         string channelName = analogChannels[i].Name;

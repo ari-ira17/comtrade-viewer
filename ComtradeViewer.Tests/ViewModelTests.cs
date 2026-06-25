@@ -43,7 +43,7 @@ namespace ComtradeViewer.Tests
             mockParser.Setup(p => p.Parse(It.IsAny<string>(), It.IsAny<string>())).Returns(fakeData);
 
             var viewModel = new MainViewModel(mockParser.Object);
-            
+
             viewModel.OpenFileCommand.Execute(new string[] { "a", "b" });
             viewModel.SelectedChannel = "Test_Ch";
 
