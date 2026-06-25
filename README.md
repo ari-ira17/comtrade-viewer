@@ -34,7 +34,9 @@ ComtradeViewer/
     ├── ComtradeViewer.View.csproj  
     ├── App.xaml                    
     ├── App.xaml.cs                 
-    └── Views/
-        ├── MainWindow.xaml         # Разметка главного окна на XAML (кнопки, графики)
-        └── MainWindow.xaml.cs
+    ├── Views/
+    │   ├── MainWindow.xaml         # Разметка главного окна на XAML (кнопки, графики)
+    │   └── MainWindow.xaml.cs
+    └── Converters/
+        └── PointsToGeometryConverter.cs  # Конвертер точек осциллограммы в геометрию для отрисовки
 ```
