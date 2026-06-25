@@ -28,18 +28,19 @@ jobs:
         run: dotnet format ComtradeViewer.slnx --verify-no-changes
 
       - name: Build
-        run: dotnet build ComtradeViewer.slnx --configuration Release
+        run: dotnet build ComtradeViewer.slnx --configuration Release -f net10.0
 
       - name: Test
-        run: >
-          dotnet test ComtradeViewer.slnx
-          --configuration Release
-          --no-build
-          --verbosity normal
-          --logger "trx;LogFileName=test-results.trx"
-          --collect:"XPlat Code Coverage"
-          --results-directory ./TestResults
-          /p:DeterministicSourcePaths=true
+        run: |
+          dotnet test ComtradeViewer.slnx \
+            --configuration Release \
+            --no-build \
+            --framework net10.0 \
+            --verbosity normal \
+            --logger "trx;LogFileName=test-results.trx" \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults \
+            /p:DeterministicSourcePaths=true
 
       - name: Test Results Visualization
         uses: dorny/test-reporter@v1
