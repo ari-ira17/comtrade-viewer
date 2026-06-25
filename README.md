@@ -4,7 +4,7 @@
 Целевая платформа: .NET Framework 4.0.
 
 ---
-```
+```text
 ComtradeViewer/
 │
 ├── .gitignore                      # Исключает временные файлы Visual Studio и VS Code
@@ -22,6 +22,8 @@ ComtradeViewer/
 │
 ├── ComtradeViewer.ViewModel/       # Слой логики управления (Class Library, net40)
 │   ├── ComtradeViewer.ViewModel.csproj 
+│   ├── RelayCommand.cs             # Реализация ICommand для привязки кнопок
+│   ├── ViewModelBase.cs            # Базовый класс с реализацией INotifyPropertyChanged
 │   └── ViewModels/
 │       └── MainViewModel.cs        # Обрабатывает команды кнопок и готовит данные для графиков
 │
