@@ -9,17 +9,13 @@ namespace ComtradeViewer.ViewModel.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
+        private readonly IComtradeParser _parser;
         private Dictionary<string, List<SamplePoint>> _parsedData;
-
         private string _selectedChannel;
         private List<SamplePoint> _chartPoints;
         private double _chartWidth = 1000;
 
-        private readonly IComtradeParser _parser;
-
-        public MainViewModel() : this(new ComtradeParser())
-        {
-        }
+        public MainViewModel() : this(new ComtradeParser()) { }
 
         public MainViewModel(IComtradeParser parser)
         {
@@ -34,44 +30,19 @@ namespace ComtradeViewer.ViewModel.ViewModels
         public string SelectedChannel
         {
             get => _selectedChannel;
-            set
-            {
-                if (_selectedChannel != value)
-                {
-                    _selectedChannel = value;
-                    OnPropertyChanged();
-
-                    UpdateChartPoints();
-                }
-            }
+            set { if (_selectedChannel != value) { _selectedChannel = value; OnPropertyChanged(); UpdateChartPoints(); } }
         }
 
         public List<SamplePoint> ChartPoints
         {
             get => _chartPoints;
-            set
-            {
-                if (_chartPoints != value)
-                {
-                    _chartPoints = value;
-                    OnPropertyChanged();
-                }
-            }
+            set { if (_chartPoints != value) { _chartPoints = value; OnPropertyChanged(); } }
         }
 
         public double ChartWidth
         {
             get => _chartWidth;
-            set
-            {
-                if (_chartWidth != value && value > 10)
-                {
-                    _chartWidth = value;
-                    OnPropertyChanged();
-
-                    UpdateChartPoints();
-                }
-            }
+            set { if (_chartWidth != value && value > 10) { _chartWidth = value; OnPropertyChanged(); UpdateChartPoints(); } }
         }
 
         public ICommand OpenFileCommand { get; }
@@ -82,60 +53,32 @@ namespace ComtradeViewer.ViewModel.ViewModels
             {
                 try
                 {
-                    string cfgPath = paths[0];
-                    string datPath = paths[1];
-
-                    _parsedData = _parser.Parse(cfgPath, datPath);
-
+                    _parsedData = _parser.Parse(paths[0], paths[1]);
                     Channels.Clear();
                     if (_parsedData != null)
                     {
-                        foreach (var channelName in _parsedData.Keys)
-                        {
-                            Channels.Add(channelName);
-                        }
+                        foreach (var name in _parsedData.Keys)
+                            Channels.Add(name);
                     }
-
-                    if (Channels.Count > 0)
-                    {
-                        SelectedChannel = Channels[0];
-                    }
-                    else
-                    {
-                        SelectedChannel = null;
-                        ChartPoints = new List<SamplePoint>();
-                    }
+                    SelectedChannel = Channels.Count > 0 ? Channels[0] : null;
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Console.WriteLine($"Ошибка при открытии и парсинге файлов COMTRADE: {ex.Message}");
+                    _parsedData = null;
+                    Channels.Clear();
+                    SelectedChannel = null;
                 }
             }
         }
 
         private void UpdateChartPoints()
         {
-            if (string.IsNullOrEmpty(SelectedChannel) || _parsedData == null || !_parsedData.ContainsKey(SelectedChannel))
+            if (string.IsNullOrEmpty(SelectedChannel) || _parsedData == null)
             {
                 ChartPoints = new List<SamplePoint>();
                 return;
             }
-
-            try
-            {
-                List<SamplePoint> rawPoints = _parsedData[SelectedChannel];
-
-                int targetPointsCount = (int)ChartWidth * 2;
-
-                List<SamplePoint> optimizedPoints = DataDownsampler.MinMax(rawPoints, targetPointsCount);
-
-                ChartPoints = optimizedPoints;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка при оптимизации точек для графика: {ex.Message}");
-                ChartPoints = new List<SamplePoint>();
-            }
+            ChartPoints = DataDownsampler.MinMax(_parsedData[SelectedChannel], (int)ChartWidth * 2);
         }
     }
 }
