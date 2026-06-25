@@ -25,14 +25,14 @@ jobs:
           dotnet-version: "10.x"
 
       - name: Check format
-        run: dotnet format comtrade-viewer.slnx --verify-no-changes
+        run: dotnet format ComtradeViewer.slnx --verify-no-changes
 
       - name: Build
-        run: dotnet build comtrade-viewer.slnx --configuration Release
+        run: dotnet build ComtradeViewer.slnx --configuration Release
 
       - name: Test
         run: >
-          dotnet test comtrade-viewer.slnx
+          dotnet test ComtradeViewer.slnx
           --configuration Release
           --no-build
           --verbosity normal
@@ -69,4 +69,3 @@ jobs:
         with:
           recreate: true
           path: code-coverage-results.md
-          
