@@ -2,7 +2,7 @@
 using Microsoft.Win32;
 using ComtradeViewer.ViewModel.ViewModels;
 
-namespace ComtradeViewer.View
+namespace ComtradeViewer.View.Views
 {
     public partial class MainWindow : Window
     {

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using ComtradeViewer.Model.Models;
@@ -10,98 +9,92 @@ namespace ComtradeViewer.ViewModel.ViewModels
     public class MainViewModel : ViewModelBase
     {
         private readonly IComtradeParser _parser;
-        private Dictionary<string, List<SamplePoint>> _parsedData;
-        private string _selectedChannel;
-        private List<SamplePoint> _chartPoints;
-        private double _chartWidth = 1000;
-        private string _statusText = "Готов";
-        public string StatusText
-        {
-            get => _statusText;
-            set { _statusText = value; OnPropertyChanged(); }
-        }
-
-        private string _fileInfo = "Файл не загружен";
-        public string FileInfo
-        {
-            get => _fileInfo;
-            set { _fileInfo = value; OnPropertyChanged(); }
-        }
+        private ObservableCollection<ChannelPlotViewModel> _channelPlots;
+        private string _statusText;
+        private string _fileInfo;
 
         public MainViewModel() : this(new ComtradeParser()) { }
 
         public MainViewModel(IComtradeParser parser)
         {
             _parser = parser;
-            Channels = new ObservableCollection<string>();
             OpenFileCommand = new RelayCommand(ExecuteOpenFile);
-            _chartPoints = new List<SamplePoint>();
+            _channelPlots = new ObservableCollection<ChannelPlotViewModel>();
+            StatusText = "Готов";
+            FileInfo = "Файл не загружен";
         }
 
-        public ObservableCollection<string> Channels { get; private set; }
-
-        public string SelectedChannel
+        public ObservableCollection<ChannelPlotViewModel> ChannelPlots
         {
-            get => _selectedChannel;
-            set { if (_selectedChannel != value) { _selectedChannel = value; OnPropertyChanged(); UpdateChartPoints(); } }
+            get => _channelPlots;
+            set
+            {
+                _channelPlots = value;
+                OnPropertyChanged();
+            }
         }
 
-        public List<SamplePoint> ChartPoints
+        public string StatusText
         {
-            get => _chartPoints;
-            set { if (_chartPoints != value) { _chartPoints = value; OnPropertyChanged(); } }
+            get => _statusText;
+            set
+            {
+                _statusText = value;
+                OnPropertyChanged();
+            }
         }
 
-        public double ChartWidth
+        public string FileInfo
         {
-            get => _chartWidth;
-            set { if (_chartWidth != value && value > 10) { _chartWidth = value; OnPropertyChanged(); UpdateChartPoints(); } }
+            get => _fileInfo;
+            set
+            {
+                _fileInfo = value;
+                OnPropertyChanged();
+            }
         }
 
         public ICommand OpenFileCommand { get; }
 
         private void ExecuteOpenFile(object parameter)
         {
-            if (parameter is string[] paths && paths.Length == 2)
-            {
-                try
-                {
-                    StatusText = "Загрузка...";
-                    _parsedData = _parser.Parse(paths[0], paths[1]);
-                    Channels.Clear();
-                    if (_parsedData != null && _parsedData.Count > 0)
-                    {
-                        foreach (var name in _parsedData.Keys)
-                            Channels.Add(name);
-                        FileInfo = $"Файл: {System.IO.Path.GetFileName(paths[0])}, каналов: {Channels.Count}";
-                        StatusText = $"Загружено {Channels.Count} каналов";
-                    }
-                    else
-                    {
-                        StatusText = "Нет данных";
-                        FileInfo = "Файл пуст или неверный формат";
-                    }
-                    SelectedChannel = Channels.Count > 0 ? Channels[0] : null;
-                }
-                catch (Exception ex)
-                {
-                    StatusText = "Ошибка: " + ex.Message;
-                    FileInfo = "Ошибка загрузки";
-                    _parsedData = null;
-                    Channels.Clear();
-                    SelectedChannel = null;
-                }
-            }
-        }
-
-        private void UpdateChartPoints()
-        {
-            if (string.IsNullOrEmpty(SelectedChannel) || _parsedData == null)
-            {
-                ChartPoints = new List<SamplePoint>();
+            if (!(parameter is string[] paths) || paths.Length != 2)
                 return;
+
+            try
+            {
+                StatusText = "Загрузка...";
+
+                var parseResult = _parser.Parse(paths[0], paths[1]);
+                var data = parseResult.Data;
+                var channels = parseResult.Channels;
+
+                if (data == null || data.Count == 0)
+                {
+                    StatusText = "Нет данных";
+                    FileInfo = "Файл пуст или неверный формат";
+                    ChannelPlots.Clear();
+                    return;
+                }
+
+                ChannelPlots.Clear();
+                foreach (var ch in channels)
+                {
+                    if (data.TryGetValue(ch.Name, out var points))
+                    {
+                        ChannelPlots.Add(new ChannelPlotViewModel(ch, points));
+                    }
+                }
+
+                FileInfo = $"Файл: {System.IO.Path.GetFileName(paths[0])}, каналов: {ChannelPlots.Count}";
+                StatusText = $"Загружено {ChannelPlots.Count} каналов";
             }
-            ChartPoints = DataDownsampler.MinMax(_parsedData[SelectedChannel], (int)ChartWidth * 2);
+            catch (Exception ex)
+            {
+                StatusText = "Ошибка: " + ex.Message;
+                FileInfo = "Ошибка загрузки";
+                ChannelPlots.Clear();
+            }
         }
     }
 }
