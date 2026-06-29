@@ -20,7 +20,7 @@ namespace ComtradeViewer.ViewModel.ViewModels
             _parser = parser;
             OpenFileCommand = new RelayCommand(ExecuteOpenFile);
             _channelPlots = new ObservableCollection<ChannelPlotViewModel>();
-            StatusText = "Готов";
+            StatusText = "Ожидание файла...";
             FileInfo = "Файл не загружен";
         }
 
