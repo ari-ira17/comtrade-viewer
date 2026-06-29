@@ -98,7 +98,7 @@ namespace ComtradeViewer.View.Views
             const double marginTop = 15;
             const double marginBottom = 15;
 
-            double plotWidth  = canvasWidth - marginLeft - marginRight;
+            double plotWidth = canvasWidth - marginLeft - marginRight;
             double plotHeight = canvasHeight - marginTop - marginBottom;
             double zeroY = canvasHeight / 2;
 
@@ -126,7 +126,7 @@ namespace ComtradeViewer.View.Views
 
             var path = new Path
             {
-                Stroke = Brushes.Gray,        
+                Stroke = Brushes.Gray,
                 StrokeThickness = 1.5,
                 Data = geometry
             };
@@ -194,7 +194,7 @@ namespace ComtradeViewer.View.Views
                 Foreground = Brushes.Black,
                 FontWeight = FontWeights.Bold
             };
-            Canvas.SetLeft(zeroLabel, marginLeft - 22); 
+            Canvas.SetLeft(zeroLabel, marginLeft - 22);
             Canvas.SetTop(zeroLabel, zeroY - 10);
             _plotCanvas.Children.Add(zeroLabel);
 
@@ -204,7 +204,7 @@ namespace ComtradeViewer.View.Views
                 FontSize = 11,
                 Foreground = Brushes.DarkGreen
             };
-            Canvas.SetLeft(minLabel, marginLeft - 50);  
+            Canvas.SetLeft(minLabel, marginLeft - 50);
             Canvas.SetTop(minLabel, yMin - 8);
             _plotCanvas.Children.Add(minLabel);
 
