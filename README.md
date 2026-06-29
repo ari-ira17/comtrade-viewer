@@ -7,36 +7,40 @@
 ```text
 ComtradeViewer/
 │
-├── .gitignore                      # Исключает временные файлы Visual Studio и VS Code
+├── .gitignore
 ├── .github/
 │   └── workflows/
-│       └── ci.yml                  # Конфигурация GitHub Actions
-├── README.md                       # Документация проекта
-├── ComtradeViewer.slnx             # Общий файл решения
+│       └── ci.yml
+├── README.md
+├── ComtradeViewer.slnx
 │
-├── ComtradeViewer.Model/           # Слой парсинга и бизнес-логики (Class Library, net40)
-│   ├── ComtradeViewer.Model.csproj 
+├── ComtradeViewer.Model/                 # Парсинг и бизнес-логика (net40)
+│   ├── ComtradeViewer.Model.csproj
 │   ├── Models/
-│   │   ├── ChannelInfo.cs          # Описание канала (название, фаза, коэффициенты из .cfg)
-│   │   └── SamplePoint.cs          # Точка осциллограммы (Время, Значение)
+│   │   ├── ChannelInfo.cs                # Канал: имя, коэф., мин/макс из .cfg
+│   │   └── SamplePoint.cs                # Точка (время, значение)
 │   └── Services/
-│       ├── ComtradeParser.cs       # Парсер: чтение текстового .cfg и бинарного .dat
-│       └── DataDownsampler.cs      # Алгоритм прореживания (Min-Max)
+│       ├── IComtradeParser.cs            # Интерфейс парсера
+│       ├── ComtradeParser.cs             # Реализация: чтение .cfg и .dat
+│       ├── ComtradeParseResult.cs        # Результат парсинга (данные + каналы)
+│       └── DataDownsampler.cs            # Прореживание Min-Max
 │
-├── ComtradeViewer.ViewModel/       # Слой логики управления (Class Library, net40)
-│   ├── ComtradeViewer.ViewModel.csproj 
-│   ├── RelayCommand.cs             # Реализация ICommand для привязки кнопок
-│   ├── ViewModelBase.cs            # Базовый класс с реализацией INotifyPropertyChanged
+├── ComtradeViewer.ViewModel/             # Логика и команды (net40)
+│   ├── ComtradeViewer.ViewModel.csproj
+│   ├── RelayCommand.cs                   # ICommand
+│   ├── ViewModelBase.cs                  # INotifyPropertyChanged
 │   └── ViewModels/
-│       └── MainViewModel.cs        # Обрабатывает команды кнопок и готовит данные для графиков
+│       ├── MainViewModel.cs              # Команды, коллекция каналов
+│       └── ChannelPlotViewModel.cs       # Модель представления одного канала
 │
-└── ComtradeViewer.View/            # Графический интерфейс (WPF Application, net40)
-    ├── ComtradeViewer.View.csproj  
-    ├── App.xaml                    
-    ├── App.xaml.cs                 
+└── ComtradeViewer.View/                  # WPF-интерфейс (net40)
+    ├── ComtradeViewer.View.csproj
+    ├── App.xaml
+    ├── App.xaml.cs
+    ├── MainWindow.xaml                   # Главное окно (ItemsControl + ScrollViewer)
+    ├── MainWindow.xaml.cs
     ├── Views/
-    │   ├── MainWindow.xaml         # Разметка главного окна на XAML (кнопки, графики)
-    │   └── MainWindow.xaml.cs
+    │   └── ChannelPlotControl.cs         # Полностью кодогенерируемый контрол графика
     └── Converters/
-        └── PointsToGeometryConverter.cs  # Конвертер точек осциллограммы в геометрию для отрисовки
+        └── PointsToGeometryConverter.cs  # (опционально) конвертер для привязок, если используется
 ```
