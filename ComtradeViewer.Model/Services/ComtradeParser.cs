@@ -11,16 +11,22 @@ namespace ComtradeViewer.Model.Services
     {
         public Dictionary<string, List<SamplePoint>> Parse(string cfgPath, string datPath)
         {
-            Encoding win1251 = Encoding.GetEncoding(1251);
+            Encoding encoding;
+            try
+            {
+                encoding = Encoding.GetEncoding(1251);
+            }
+            catch (NotSupportedException)
+            {
+                encoding = Encoding.Default;
+            }
 
             var analogChannels = new List<ChannelInfo>();
-            int totalAnalog = 0;
-            int totalDigital = 0;
+            int totalAnalog = 0, totalDigital = 0;
 
-            using (var reader = new StreamReader(cfgPath, Encoding.GetEncoding(1251)))
+            using (var reader = new StreamReader(cfgPath, encoding))
             {
-                reader.ReadLine();
-
+                reader.ReadLine(); 
                 string[] summary = reader.ReadLine().Split(',');
                 totalAnalog = int.Parse(summary[1].Replace("A", "").Trim());
                 totalDigital = int.Parse(summary[2].Replace("D", "").Trim());
@@ -42,17 +48,14 @@ namespace ComtradeViewer.Model.Services
 
             var result = new Dictionary<string, List<SamplePoint>>();
             foreach (var ch in analogChannels)
-            {
                 result[ch.Name] = new List<SamplePoint>();
-            }
 
-            using (var reader = new StreamReader(datPath))
+            using (var reader = new StreamReader(datPath, encoding))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     if (string.IsNullOrWhiteSpace(line)) continue;
-
                     string[] tokens = line.Split(',');
 
                     double timeMs = double.Parse(tokens[1].Trim()) / 1000.0;
@@ -60,9 +63,7 @@ namespace ComtradeViewer.Model.Services
                     for (int i = 0; i < totalAnalog; i++)
                     {
                         double rawValue = double.Parse(tokens[2 + i].Trim(), CultureInfo.InvariantCulture);
-
                         double physicalValue = rawValue * analogChannels[i].FactorA + analogChannels[i].FactorB;
-
                         string channelName = analogChannels[i].Name;
                         result[channelName].Add(new SamplePoint(timeMs, physicalValue));
                     }
