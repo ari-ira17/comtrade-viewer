@@ -9,11 +9,18 @@ namespace ComtradeViewer.View.Views
         public MainWindow()
         {
             InitializeComponent();
+            
+            DataContext = new MainViewModel();
         }
 
         private void OpenButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFileDialog { Filter = "COMTRADE cfg (*.cfg)|*.cfg" };
+            var dialog = new OpenFileDialog
+            {
+                Filter = "COMTRADE Configuration (*.cfg)|*.cfg",
+                Title = "Выберите файл конфигурации COMTRADE"
+            };
+
             if (dialog.ShowDialog() == true)
             {
                 string cfgPath = dialog.FileName;
@@ -21,7 +28,10 @@ namespace ComtradeViewer.View.Views
 
                 if (DataContext is MainViewModel vm)
                 {
-                    vm.OpenFileCommand.Execute(new string[] { cfgPath, datPath });
+                    if (vm.OpenFileCommand.CanExecute(new string[] { cfgPath, datPath }))
+                    {
+                        vm.OpenFileCommand.Execute(new string[] { cfgPath, datPath });
+                    }
                 }
             }
         }

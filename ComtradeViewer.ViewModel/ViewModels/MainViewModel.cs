@@ -62,8 +62,10 @@ namespace ComtradeViewer.ViewModel.ViewModels
                     }
                     SelectedChannel = Channels.Count > 0 ? Channels[0] : null;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    Console.WriteLine(ex.ToString());
                     _parsedData = null;
                     Channels.Clear();
                     SelectedChannel = null;

@@ -17,7 +17,7 @@ namespace ComtradeViewer.Model.Services
             int totalAnalog = 0;
             int totalDigital = 0;
 
-            using (var reader = new StreamReader(cfgPath, win1251))
+            using (var reader = new StreamReader(cfgPath, Encoding.GetEncoding(1251)))
             {
                 reader.ReadLine();
 
