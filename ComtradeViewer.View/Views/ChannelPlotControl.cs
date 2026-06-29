@@ -64,7 +64,7 @@ namespace ComtradeViewer.View.Views
 
             this.DataContextChanged += (s, e) => DrawPlot();
             this.Loaded += (s, e) => DrawPlot();
-            this.SizeChanged += (s, e) => DrawPlot(); 
+            this.SizeChanged += (s, e) => DrawPlot();
 
             if (this.DataContext != null)
                 DrawPlot();
