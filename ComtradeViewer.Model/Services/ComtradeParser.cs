@@ -9,7 +9,7 @@ namespace ComtradeViewer.Model.Services
 {
     public class ComtradeParser : IComtradeParser
     {
-        public Dictionary<string, List<SamplePoint>> Parse(string cfgPath, string datPath)
+        public ComtradeParseResult Parse(string cfgPath, string datPath)
         {
             Encoding encoding;
             try
@@ -26,7 +26,7 @@ namespace ComtradeViewer.Model.Services
 
             using (var reader = new StreamReader(cfgPath, encoding))
             {
-                reader.ReadLine(); 
+                reader.ReadLine();
                 string[] summary = reader.ReadLine().Split(',');
                 totalAnalog = int.Parse(summary[1].Replace("A", "").Trim());
                 totalDigital = int.Parse(summary[2].Replace("D", "").Trim());
@@ -40,7 +40,9 @@ namespace ComtradeViewer.Model.Services
                         Name = line[1].Trim(),
                         Unit = line[4].Trim(),
                         FactorA = double.Parse(line[5].Trim(), CultureInfo.InvariantCulture),
-                        FactorB = double.Parse(line[6].Trim(), CultureInfo.InvariantCulture)
+                        FactorB = double.Parse(line[6].Trim(), CultureInfo.InvariantCulture),
+                        MinValue = int.Parse(line[8].Trim(), CultureInfo.InvariantCulture),
+                        MaxValue = int.Parse(line[9].Trim(), CultureInfo.InvariantCulture)
                     };
                     analogChannels.Add(channel);
                 }
@@ -70,7 +72,7 @@ namespace ComtradeViewer.Model.Services
                 }
             }
 
-            return result;
+            return new ComtradeParseResult { Data = result, Channels = analogChannels };
         }
     }
 }
