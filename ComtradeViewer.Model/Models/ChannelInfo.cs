@@ -7,5 +7,7 @@ namespace ComtradeViewer.Model.Models
         public string Unit { get; set; } = string.Empty;
         public double FactorA { get; set; }
         public double FactorB { get; set; }
+        public double MinValue { get; set; }
+        public double MaxValue { get; set; }
     }
 }
