@@ -14,6 +14,19 @@ namespace ComtradeViewer.ViewModel.ViewModels
         private string _selectedChannel;
         private List<SamplePoint> _chartPoints;
         private double _chartWidth = 1000;
+        private string _statusText = "Готов";
+        public string StatusText
+        {
+            get => _statusText;
+            set { _statusText = value; OnPropertyChanged(); }
+        }
+
+        private string _fileInfo = "Файл не загружен";
+        public string FileInfo
+        {
+            get => _fileInfo;
+            set { _fileInfo = value; OnPropertyChanged(); }
+        }
 
         public MainViewModel() : this(new ComtradeParser()) { }
 
@@ -53,19 +66,27 @@ namespace ComtradeViewer.ViewModel.ViewModels
             {
                 try
                 {
+                    StatusText = "Загрузка...";
                     _parsedData = _parser.Parse(paths[0], paths[1]);
                     Channels.Clear();
-                    if (_parsedData != null)
+                    if (_parsedData != null && _parsedData.Count > 0)
                     {
                         foreach (var name in _parsedData.Keys)
                             Channels.Add(name);
+                        FileInfo = $"Файл: {System.IO.Path.GetFileName(paths[0])}, каналов: {Channels.Count}";
+                        StatusText = $"Загружено {Channels.Count} каналов";
+                    }
+                    else
+                    {
+                        StatusText = "Нет данных";
+                        FileInfo = "Файл пуст или неверный формат";
                     }
                     SelectedChannel = Channels.Count > 0 ? Channels[0] : null;
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(ex.ToString());
-                    Console.WriteLine(ex.ToString());
+                    StatusText = "Ошибка: " + ex.Message;
+                    FileInfo = "Ошибка загрузки";
                     _parsedData = null;
                     Channels.Clear();
                     SelectedChannel = null;

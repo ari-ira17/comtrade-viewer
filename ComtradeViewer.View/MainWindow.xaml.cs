@@ -9,8 +9,6 @@ namespace ComtradeViewer.View.Views
         public MainWindow()
         {
             InitializeComponent();
-            
-            DataContext = new MainViewModel();
         }
 
         private void OpenButton_Click(object sender, RoutedEventArgs e)
@@ -28,10 +26,7 @@ namespace ComtradeViewer.View.Views
 
                 if (DataContext is MainViewModel vm)
                 {
-                    if (vm.OpenFileCommand.CanExecute(new string[] { cfgPath, datPath }))
-                    {
-                        vm.OpenFileCommand.Execute(new string[] { cfgPath, datPath });
-                    }
+                    vm.OpenFileCommand.Execute(new string[] { cfgPath, datPath });
                 }
             }
         }
