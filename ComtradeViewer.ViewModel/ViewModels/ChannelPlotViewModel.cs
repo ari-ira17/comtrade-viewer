@@ -8,6 +8,17 @@ namespace ComtradeViewer.ViewModel.ViewModels
         public ChannelInfo Channel { get; }
         public List<SamplePoint> Points { get; }
 
+        private SamplePoint? _selectedPoint;
+        public SamplePoint? SelectedPoint
+        {
+            get => _selectedPoint;
+            set
+            {
+                _selectedPoint = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ChannelPlotViewModel(ChannelInfo channel, List<SamplePoint> points)
         {
             Channel = channel;
