@@ -16,7 +16,6 @@ namespace ComtradeViewer.View.Views
     {
         private Canvas _plotCanvas;
         private Canvas _overlayCanvas;
-        private Viewbox _viewbox;
         private MainViewModel? _mainVm;
         private ChannelPlotViewModel? _vm;
         private bool _isDrawn = false;
@@ -28,8 +27,6 @@ namespace ComtradeViewer.View.Views
 
         private SamplePoint? _hoverPoint;
 
-        private const double CanvasWidth = 1000;
-        private const double CanvasHeight = 400;
         private const double MarginLeft = 55;
         private const double MarginRight = 15;
         private const double MarginTop = 15;
@@ -43,6 +40,7 @@ namespace ComtradeViewer.View.Views
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
+            // Левая панель
             var infoBorder = new Border
             {
                 Background = new SolidColorBrush(Color.FromRgb(240, 240, 240)),
@@ -72,36 +70,29 @@ namespace ComtradeViewer.View.Views
             Grid.SetColumn(infoBorder, 0);
             grid.Children.Add(infoBorder);
 
-            _viewbox = new Viewbox
-            {
-                Stretch = Stretch.Uniform,
-                Margin = new Thickness(5, 0, 5, 5)
-            };
-
             var canvasGrid = new Grid();
-            canvasGrid.Children.Add(new Canvas { Width = CanvasWidth, Height = CanvasHeight }); // фон
+            canvasGrid.Children.Add(new Canvas { Background = Brushes.White }); 
 
             _plotCanvas = new Canvas
             {
-                Width = CanvasWidth,
-                Height = CanvasHeight,
                 Background = Brushes.White,
                 ClipToBounds = true
             };
+            _plotCanvas.SetValue(Grid.RowProperty, 0);
+            _plotCanvas.SetValue(Grid.ColumnProperty, 0);
             canvasGrid.Children.Add(_plotCanvas);
 
             _overlayCanvas = new Canvas
             {
-                Width = CanvasWidth,
-                Height = CanvasHeight,
                 Background = Brushes.Transparent,
                 ClipToBounds = true
             };
+            _overlayCanvas.SetValue(Grid.RowProperty, 0);
+            _overlayCanvas.SetValue(Grid.ColumnProperty, 0);
             canvasGrid.Children.Add(_overlayCanvas);
 
-            _viewbox.Child = canvasGrid;
-            Grid.SetColumn(_viewbox, 1);
-            grid.Children.Add(_viewbox);
+            Grid.SetColumn(canvasGrid, 1);
+            grid.Children.Add(canvasGrid);
 
             this.Content = grid;
 
@@ -164,6 +155,11 @@ namespace ComtradeViewer.View.Views
             if (_vm == null || _mainVm == null || _vm.Points == null || _vm.Points.Count == 0)
                 return;
 
+            double canvasWidth = _plotCanvas.ActualWidth;
+            double canvasHeight = _plotCanvas.ActualHeight;
+            if (canvasWidth <= 0 || canvasHeight <= 0)
+                return;
+
             var points = _vm.Points;
             var channel = _vm.Channel;
 
@@ -190,9 +186,9 @@ namespace ComtradeViewer.View.Views
             if (maxAbs == 0) maxAbs = 1;
             maxAbs *= 1.1;
 
-            double plotWidth = CanvasWidth - MarginLeft - MarginRight;
-            double plotHeight = CanvasHeight - MarginTop - MarginBottom;
-            double zeroY = CanvasHeight / 2;
+            double plotWidth = canvasWidth - MarginLeft - MarginRight;
+            double plotHeight = canvasHeight - MarginTop - MarginBottom;
+            double zeroY = canvasHeight / 2;
 
             var geometry = new StreamGeometry();
             using (var ctx = geometry.Open())
@@ -202,7 +198,7 @@ namespace ComtradeViewer.View.Views
                 {
                     double x = MarginLeft + (pt.Time - timeMin) / (timeMax - timeMin) * plotWidth;
                     double y = zeroY - (pt.Value / maxAbs) * (plotHeight / 2);
-                    y = Math.Max(MarginTop, Math.Min(CanvasHeight - MarginBottom, y));
+                    y = Math.Max(MarginTop, Math.Min(canvasHeight - MarginBottom, y));
                     var point = new Point(x, y);
                     if (first)
                     {
@@ -229,7 +225,7 @@ namespace ComtradeViewer.View.Views
                 X1 = MarginLeft,
                 Y1 = MarginTop,
                 X2 = MarginLeft,
-                Y2 = CanvasHeight - MarginBottom,
+                Y2 = canvasHeight - MarginBottom,
                 Stroke = Brushes.Black,
                 StrokeThickness = 1.5
             };
@@ -239,7 +235,7 @@ namespace ComtradeViewer.View.Views
             {
                 X1 = MarginLeft,
                 Y1 = zeroY,
-                X2 = CanvasWidth - MarginRight,
+                X2 = canvasWidth - MarginRight,
                 Y2 = zeroY,
                 Stroke = Brushes.Black,
                 StrokeThickness = 1
@@ -250,16 +246,16 @@ namespace ComtradeViewer.View.Views
             double maxVal = channel.MaxValue;
 
             double yMin = zeroY - (minVal / maxAbs) * (plotHeight / 2);
-            yMin = Math.Max(MarginTop, Math.Min(CanvasHeight - MarginBottom, yMin));
+            yMin = Math.Max(MarginTop, Math.Min(canvasHeight - MarginBottom, yMin));
 
             double yMax = zeroY - (maxVal / maxAbs) * (plotHeight / 2);
-            yMax = Math.Max(MarginTop, Math.Min(CanvasHeight - MarginBottom, yMax));
+            yMax = Math.Max(MarginTop, Math.Min(canvasHeight - MarginBottom, yMax));
 
             var minLine = new Line
             {
                 X1 = MarginLeft,
                 Y1 = yMin,
-                X2 = CanvasWidth - MarginRight,
+                X2 = canvasWidth - MarginRight,
                 Y2 = yMin,
                 Stroke = Brushes.Green,
                 StrokeThickness = 1,
@@ -271,7 +267,7 @@ namespace ComtradeViewer.View.Views
             {
                 X1 = MarginLeft,
                 Y1 = yMax,
-                X2 = CanvasWidth - MarginRight,
+                X2 = canvasWidth - MarginRight,
                 Y2 = yMax,
                 Stroke = Brushes.Red,
                 StrokeThickness = 1,
@@ -315,7 +311,7 @@ namespace ComtradeViewer.View.Views
                 var sp = _vm.SelectedPoint.Value;
                 double selX = MarginLeft + (sp.Time - timeMin) / (timeMax - timeMin) * plotWidth;
                 double selY = zeroY - (sp.Value / maxAbs) * (plotHeight / 2);
-                selY = Math.Max(MarginTop, Math.Min(CanvasHeight - MarginBottom, selY));
+                selY = Math.Max(MarginTop, Math.Min(canvasHeight - MarginBottom, selY));
 
                 var marker = new Ellipse
                 {
@@ -337,8 +333,8 @@ namespace ComtradeViewer.View.Views
                     BorderThickness = new Thickness(1),
                     Child = new TextBlock
                     {
-                        Text = $"t={sp.Time} с\nval={sp.Value}",
-                        FontSize = 18
+                        Text = $"t={sp.Time:F6} с\nval={sp.Value:F6}",
+                        FontSize = 14
                     }
                 };
                 Canvas.SetLeft(tooltip, selX + 5);
@@ -357,20 +353,24 @@ namespace ComtradeViewer.View.Views
             if (_vm == null || _mainVm == null || !_hoverPoint.HasValue)
                 return;
 
+            double canvasWidth = _overlayCanvas.ActualWidth;
+            double canvasHeight = _overlayCanvas.ActualHeight;
+            if (canvasWidth <= 0 || canvasHeight <= 0)
+                return;
+
             var sp = _hoverPoint.Value;
             double timeMin = _mainVm.TimeMin;
             double timeMax = _mainVm.TimeMax;
-            double plotWidth = CanvasWidth - MarginLeft - MarginRight;
-            double plotHeight = CanvasHeight - MarginTop - MarginBottom;
-            double zeroY = CanvasHeight / 2;
+            double plotWidth = canvasWidth - MarginLeft - MarginRight;
+            double plotHeight = canvasHeight - MarginTop - MarginBottom;
+            double zeroY = canvasHeight / 2;
 
             double x = MarginLeft + (sp.Time - timeMin) / (timeMax - timeMin) * plotWidth;
             double maxAbs = _vm.Points.Max(p => Math.Abs(p.Value));
             if (maxAbs == 0) maxAbs = 1;
             double y = zeroY - (sp.Value / maxAbs) * (plotHeight / 2);
-            y = Math.Max(MarginTop, Math.Min(CanvasHeight - MarginBottom, y));
+            y = Math.Max(MarginTop, Math.Min(canvasHeight - MarginBottom, y));
 
-            // Маркер
             var marker = new Ellipse
             {
                 Width = 10,
@@ -382,6 +382,7 @@ namespace ComtradeViewer.View.Views
             Canvas.SetLeft(marker, x - 5);
             Canvas.SetTop(marker, y - 5);
             _overlayCanvas.Children.Add(marker);
+
             var tooltip = new Border
             {
                 Background = Brushes.LightYellow,
@@ -390,16 +391,16 @@ namespace ComtradeViewer.View.Views
                 BorderThickness = new Thickness(1),
                 Child = new TextBlock
                 {
-                    Text = $"t={sp.Time} с\nval={sp.Value}",
-                    FontSize = 18
+                    Text = $"t={sp.Time:F6} с\nval={sp.Value:F6}",
+                    FontSize = 14
                 }
             };
 
             double tooltipX = x + 10;
             double tooltipY = y - 10;
-            if (tooltipX + 160 > CanvasWidth - MarginRight)
+            if (tooltipX + 160 > canvasWidth - MarginRight)
                 tooltipX = x - 170;
-            if (tooltipY + 50 > CanvasHeight - MarginBottom)
+            if (tooltipY + 50 > canvasHeight - MarginBottom)
                 tooltipY = y - 50;
 
             Canvas.SetLeft(tooltip, tooltipX);
@@ -411,8 +412,11 @@ namespace ComtradeViewer.View.Views
         {
             if (_mainVm == null) return;
 
+            double canvasWidth = _overlayCanvas.ActualWidth;
+            if (canvasWidth <= 0) return;
+
             var pos = e.GetPosition(_overlayCanvas);
-            double plotWidth = CanvasWidth - MarginLeft - MarginRight;
+            double plotWidth = canvasWidth - MarginLeft - MarginRight;
 
             double mouseTime = _mainVm.TimeMin + (pos.X - MarginLeft) / plotWidth * (_mainVm.TimeMax - _mainVm.TimeMin);
             mouseTime = Math.Max(_mainVm.TimeMin, Math.Min(_mainVm.TimeMax, mouseTime));
@@ -466,9 +470,12 @@ namespace ComtradeViewer.View.Views
         {
             if (_isDragging && _mainVm != null)
             {
+                double canvasWidth = _overlayCanvas.ActualWidth;
+                if (canvasWidth <= 0) return;
+
                 var pos = e.GetPosition(_overlayCanvas);
                 double deltaX = pos.X - _dragStartPoint.X;
-                double plotWidth = CanvasWidth - MarginLeft - MarginRight;
+                double plotWidth = canvasWidth - MarginLeft - MarginRight;
                 double range = _dragStartTimeMax - _dragStartTimeMin;
                 double deltaTime = (deltaX / plotWidth) * range;
 
@@ -484,8 +491,11 @@ namespace ComtradeViewer.View.Views
             }
             else if (!_isDragging && _vm != null && _mainVm != null)
             {
+                double canvasWidth = _overlayCanvas.ActualWidth;
+                if (canvasWidth <= 0) return;
+
                 var pos = e.GetPosition(_overlayCanvas);
-                double plotWidth = CanvasWidth - MarginLeft - MarginRight;
+                double plotWidth = canvasWidth - MarginLeft - MarginRight;
                 double time = _mainVm.TimeMin + (pos.X - MarginLeft) / plotWidth * (_mainVm.TimeMax - _mainVm.TimeMin);
 
                 var closest = _vm.Points.OrderBy(p => Math.Abs(p.Time - time)).FirstOrDefault();
@@ -511,8 +521,11 @@ namespace ComtradeViewer.View.Views
         private void SelectPoint(MouseButtonEventArgs e)
         {
             if (_vm == null || _mainVm == null) return;
+            double canvasWidth = _overlayCanvas.ActualWidth;
+            if (canvasWidth <= 0) return;
+
             var pos = e.GetPosition(_overlayCanvas);
-            double plotWidth = CanvasWidth - MarginLeft - MarginRight;
+            double plotWidth = canvasWidth - MarginLeft - MarginRight;
             double time = _mainVm.TimeMin + (pos.X - MarginLeft) / plotWidth * (_mainVm.TimeMax - _mainVm.TimeMin);
 
             var closest = _vm.Points.OrderBy(p => Math.Abs(p.Time - time)).FirstOrDefault();
