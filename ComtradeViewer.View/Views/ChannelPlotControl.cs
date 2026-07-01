@@ -50,7 +50,6 @@ namespace ComtradeViewer.View.Views
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Левая панель
             var infoBorder = new Border
             {
                 Background = new SolidColorBrush(Color.FromRgb(240, 240, 240)),
@@ -224,7 +223,6 @@ namespace ComtradeViewer.View.Views
             double plotHeight = canvasHeight - MarginTop - MarginBottom;
             double zeroY = canvasHeight / 2;
 
-            // Сохраняем параметры для UpdateOverlay
             _currentVisiblePoints = visiblePoints;
             _currentMaxAbs = maxAbs;
             _currentTimeMin = timeMin;
@@ -236,7 +234,6 @@ namespace ComtradeViewer.View.Views
 
             Brush curveBrush = StringToBrush(_vm.Color);
 
-            // ---- Кривая ----
             var geometry = new StreamGeometry();
             using (var ctx = geometry.Open())
             {
@@ -267,7 +264,6 @@ namespace ComtradeViewer.View.Views
             };
             _plotCanvas.Children.Add(path);
 
-            // ---- Маркеры (точки) при сильном приближении ----
             if (visiblePoints.Count > 1)
             {
                 double prevX = double.NaN;
@@ -296,7 +292,6 @@ namespace ComtradeViewer.View.Views
                 }
             }
 
-            // ---- Оси, линии, подписи ----
             var yAxis = new Line
             {
                 X1 = MarginLeft,
