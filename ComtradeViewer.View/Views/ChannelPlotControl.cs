@@ -25,8 +25,6 @@ namespace ComtradeViewer.View.Views
         private double _dragStartTimeMin;
         private double _dragStartTimeMax;
 
-        private SamplePoint? _hoverPoint;
-
         private const double MarginLeft = 55;
         private const double MarginRight = 15;
         private const double MarginTop = 15;
@@ -40,7 +38,6 @@ namespace ComtradeViewer.View.Views
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Левая панель
             var infoBorder = new Border
             {
                 Background = new SolidColorBrush(Color.FromRgb(240, 240, 240)),
@@ -71,7 +68,7 @@ namespace ComtradeViewer.View.Views
             grid.Children.Add(infoBorder);
 
             var canvasGrid = new Grid();
-            canvasGrid.Children.Add(new Canvas { Background = Brushes.White }); 
+            canvasGrid.Children.Add(new Canvas { Background = Brushes.White });
 
             _plotCanvas = new Canvas
             {
@@ -110,6 +107,10 @@ namespace ComtradeViewer.View.Views
                             {
                                 _isDrawn = false;
                                 DrawPlot();
+                            }
+                            else if (args.PropertyName == nameof(MainViewModel.HoverTimeChanged))
+                            {
+                                UpdateOverlay();
                             }
                         };
                     }
@@ -350,7 +351,7 @@ namespace ComtradeViewer.View.Views
         {
             _overlayCanvas.Children.Clear();
 
-            if (_vm == null || _mainVm == null || !_hoverPoint.HasValue)
+            if (_vm == null || _mainVm == null || _vm.Points == null || _vm.Points.Count == 0)
                 return;
 
             double canvasWidth = _overlayCanvas.ActualWidth;
@@ -358,58 +359,79 @@ namespace ComtradeViewer.View.Views
             if (canvasWidth <= 0 || canvasHeight <= 0)
                 return;
 
-            var sp = _hoverPoint.Value;
             double timeMin = _mainVm.TimeMin;
             double timeMax = _mainVm.TimeMax;
             double plotWidth = canvasWidth - MarginLeft - MarginRight;
             double plotHeight = canvasHeight - MarginTop - MarginBottom;
             double zeroY = canvasHeight / 2;
 
-            double x = MarginLeft + (sp.Time - timeMin) / (timeMax - timeMin) * plotWidth;
-            double maxAbs = _vm.Points.Max(p => Math.Abs(p.Value));
-            if (maxAbs == 0) maxAbs = 1;
-            double y = zeroY - (sp.Value / maxAbs) * (plotHeight / 2);
-            y = Math.Max(MarginTop, Math.Min(canvasHeight - MarginBottom, y));
-
-            var marker = new Ellipse
+            if (_mainVm.HoverTime.HasValue)
             {
-                Width = 10,
-                Height = 10,
-                Fill = Brushes.Orange,
-                Stroke = Brushes.Black,
-                StrokeThickness = 1.5
-            };
-            Canvas.SetLeft(marker, x - 5);
-            Canvas.SetTop(marker, y - 5);
-            _overlayCanvas.Children.Add(marker);
-
-            var tooltip = new Border
-            {
-                Background = Brushes.LightYellow,
-                Padding = new Thickness(6),
-                BorderBrush = Brushes.Gray,
-                BorderThickness = new Thickness(1),
-                Child = new TextBlock
+                double hoverTime = _mainVm.HoverTime.Value;
+                if (hoverTime >= timeMin && hoverTime <= timeMax)
                 {
-                    Text = $"t={sp.Time:F6} с\nval={sp.Value:F6}",
-                    FontSize = 14
+                    double x = MarginLeft + (hoverTime - timeMin) / (timeMax - timeMin) * plotWidth;
+                    var line = new Line
+                    {
+                        X1 = x,
+                        Y1 = MarginTop,
+                        X2 = x,
+                        Y2 = canvasHeight - MarginBottom,
+                        Stroke = Brushes.Gray,
+                        StrokeThickness = 1,
+                        StrokeDashArray = new DoubleCollection { 4, 4 }
+                    };
+                    _overlayCanvas.Children.Add(line);
+
+                    var closest = _vm.Points.OrderBy(p => Math.Abs(p.Time - hoverTime)).FirstOrDefault();
+
+                    double maxAbs = _vm.Points.Max(p => Math.Abs(p.Value));
+                    if (maxAbs == 0) maxAbs = 1;
+                    double y = zeroY - (closest.Value / maxAbs) * (plotHeight / 2);
+                    y = Math.Max(MarginTop, Math.Min(canvasHeight - MarginBottom, y));
+
+                    var marker = new Ellipse
+                    {
+                        Width = 8,
+                        Height = 8,
+                        Fill = Brushes.Orange,
+                        Stroke = Brushes.Black,
+                        StrokeThickness = 1
+                    };
+                    Canvas.SetLeft(marker, x - 4);
+                    Canvas.SetTop(marker, y - 4);
+                    _overlayCanvas.Children.Add(marker);
+
+                    var tooltip = new Border
+                    {
+                        Background = Brushes.LightYellow,
+                        Padding = new Thickness(6),
+                        BorderBrush = Brushes.Gray,
+                        BorderThickness = new Thickness(1),
+                        Child = new TextBlock
+                        {
+                            Text = $"t={closest.Time:F6} с\nval={closest.Value:F6}",
+                            FontSize = 14
+                        }
+                    };
+                    double tooltipX = x + 10;
+                    double tooltipY = y - 10;
+                    if (tooltipX + 160 > canvasWidth - MarginRight)
+                        tooltipX = x - 170;
+                    if (tooltipY + 50 > canvasHeight - MarginBottom)
+                        tooltipY = y - 50;
+                    Canvas.SetLeft(tooltip, tooltipX);
+                    Canvas.SetTop(tooltip, tooltipY);
+                    _overlayCanvas.Children.Add(tooltip);
                 }
-            };
-
-            double tooltipX = x + 10;
-            double tooltipY = y - 10;
-            if (tooltipX + 160 > canvasWidth - MarginRight)
-                tooltipX = x - 170;
-            if (tooltipY + 50 > canvasHeight - MarginBottom)
-                tooltipY = y - 50;
-
-            Canvas.SetLeft(tooltip, tooltipX);
-            Canvas.SetTop(tooltip, tooltipY);
-            _overlayCanvas.Children.Add(tooltip);
+            }
         }
 
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
+            if (!(Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+                return;
+
             if (_mainVm == null) return;
 
             double canvasWidth = _overlayCanvas.ActualWidth;
@@ -489,7 +511,7 @@ namespace ComtradeViewer.View.Views
                 if (newMin >= globalMin && newMax <= globalMax)
                     _mainVm.SetTimeRange(newMin, newMax);
             }
-            else if (!_isDragging && _vm != null && _mainVm != null)
+            else if (!_isDragging && _mainVm != null)
             {
                 double canvasWidth = _overlayCanvas.ActualWidth;
                 if (canvasWidth <= 0) return;
@@ -497,30 +519,25 @@ namespace ComtradeViewer.View.Views
                 var pos = e.GetPosition(_overlayCanvas);
                 double plotWidth = canvasWidth - MarginLeft - MarginRight;
                 double time = _mainVm.TimeMin + (pos.X - MarginLeft) / plotWidth * (_mainVm.TimeMax - _mainVm.TimeMin);
+                double globalMin = _mainVm.AllChannels.SelectMany(c => c.PlotViewModel.Points).Min(p => p.Time);
+                double globalMax = _mainVm.AllChannels.SelectMany(c => c.PlotViewModel.Points).Max(p => p.Time);
+                time = Math.Max(globalMin, Math.Min(globalMax, time));
 
-                var closest = _vm.Points.OrderBy(p => Math.Abs(p.Time - time)).FirstOrDefault();
-                if (_vm.Points.Any())
-                {
-                    _hoverPoint = closest;
-                    UpdateOverlay();
-                }
-                else
-                {
-                    _hoverPoint = null;
-                    UpdateOverlay();
-                }
+                _mainVm.HoverTime = time;
             }
         }
 
         private void OnMouseLeave(object sender, MouseEventArgs e)
         {
-            _hoverPoint = null;
-            UpdateOverlay();
+            if (_mainVm != null)
+                _mainVm.HoverTime = null;
         }
 
         private void SelectPoint(MouseButtonEventArgs e)
         {
-            if (_vm == null || _mainVm == null) return;
+            if (_vm == null || _mainVm == null || _vm.Points == null || _vm.Points.Count == 0)
+                return;
+
             double canvasWidth = _overlayCanvas.ActualWidth;
             if (canvasWidth <= 0) return;
 
@@ -529,12 +546,9 @@ namespace ComtradeViewer.View.Views
             double time = _mainVm.TimeMin + (pos.X - MarginLeft) / plotWidth * (_mainVm.TimeMax - _mainVm.TimeMin);
 
             var closest = _vm.Points.OrderBy(p => Math.Abs(p.Time - time)).FirstOrDefault();
-            if (_vm.Points.Any())
-            {
-                _vm.SelectedPoint = closest;
-                _isDrawn = false;
-                DrawPlot();
-            }
+            _vm.SelectedPoint = closest;
+            _isDrawn = false;
+            DrawPlot();
         }
     }
 }

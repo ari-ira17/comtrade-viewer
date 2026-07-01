@@ -17,6 +17,7 @@ namespace ComtradeViewer.ViewModel.ViewModels
 
         private double _timeMin;
         private double _timeMax;
+        private double? _hoverTime;
 
         public MainViewModel() : this(new ComtradeParser()) { }
 
@@ -110,6 +111,21 @@ namespace ComtradeViewer.ViewModel.ViewModels
         }
 
         public bool TimeRangeChanged { get; set; }
+
+        public double? HoverTime
+        {
+            get => _hoverTime;
+            set
+            {
+                if (_hoverTime != value)
+                {
+                    _hoverTime = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HoverTimeChanged));
+                }
+            }
+        }
+        public bool HoverTimeChanged { get; set; }
 
         public double ScrollMinimum => 0;
         public double ScrollMaximum
