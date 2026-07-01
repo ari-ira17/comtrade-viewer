@@ -92,15 +92,31 @@
             <TextBlock Text="{Binding FileInfo}" Margin="20,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <ItemsControl ItemsSource="{Binding FilteredChannelPlots}"
-                          VirtualizingStackPanel.IsVirtualizing="False">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <views:ChannelPlotControl DataContext="{Binding}"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+        <DockPanel LastChildFill="True" Margin="0,0,0,0">
+            <ScrollBar x:Name="HorizontalScrollBar"
+                       DockPanel.Dock="Bottom"
+                       Orientation="Horizontal"
+                       Minimum="{Binding ScrollMinimum}"
+                       Maximum="{Binding ScrollMaximum}"
+                       Value="{Binding ScrollValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       ViewportSize="{Binding ViewportSize}"
+                       SmallChange="0.01"
+                       LargeChange="{Binding ViewportSize}"
+                       Margin="0,2,0,2"
+                       Visibility="Visible"/>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                          HorizontalScrollBarVisibility="Disabled"
+                          DockPanel.Dock="Top">
+                <ItemsControl ItemsSource="{Binding FilteredChannelPlots}"
+                              VirtualizingStackPanel.IsVirtualizing="False">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <views:ChannelPlotControl DataContext="{Binding}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
     </DockPanel>
 </Window>

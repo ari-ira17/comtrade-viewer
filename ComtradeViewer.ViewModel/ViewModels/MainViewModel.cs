@@ -42,6 +42,9 @@ namespace ComtradeViewer.ViewModel.ViewModels
             {
                 _allChannels = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(ScrollMaximum));
+                OnPropertyChanged(nameof(ViewportSize));
+                OnPropertyChanged(nameof(ScrollValue));
             }
         }
 
@@ -85,6 +88,8 @@ namespace ComtradeViewer.ViewModel.ViewModels
                     _timeMin = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(TimeRangeChanged));
+                    OnPropertyChanged(nameof(ScrollValue));
+                    OnPropertyChanged(nameof(ViewportSize));
                 }
             }
         }
@@ -99,11 +104,42 @@ namespace ComtradeViewer.ViewModel.ViewModels
                     _timeMax = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(TimeRangeChanged));
+                    OnPropertyChanged(nameof(ViewportSize));
                 }
             }
         }
 
         public bool TimeRangeChanged { get; set; }
+
+        public double ScrollMinimum => 0;
+        public double ScrollMaximum
+        {
+            get
+            {
+                if (!AllChannels.Any()) return 1;
+                return AllChannels.SelectMany(c => c.PlotViewModel.Points).Max(p => p.Time);
+            }
+        }
+
+        public double ScrollValue
+        {
+            get => TimeMin;
+            set
+            {
+                if (Math.Abs(TimeMin - value) > 0.000001)
+                {
+                    double range = TimeMax - TimeMin;
+                    double newMin = Math.Max(ScrollMinimum, Math.Min(value, ScrollMaximum - range));
+                    if (newMin + range > ScrollMaximum)
+                        newMin = ScrollMaximum - range;
+                    TimeMin = newMin;
+                    TimeMax = newMin + range;
+                    OnPropertyChanged(nameof(ScrollValue));
+                }
+            }
+        }
+
+        public double ViewportSize => TimeMax - TimeMin;
 
         public ICommand OpenFileCommand { get; }
         public ICommand ResetZoomCommand { get; }
@@ -161,6 +197,10 @@ namespace ComtradeViewer.ViewModel.ViewModels
 
                 UpdateFilteredChannels();
 
+                OnPropertyChanged(nameof(ScrollMaximum));
+                OnPropertyChanged(nameof(ViewportSize));
+                OnPropertyChanged(nameof(ScrollValue));
+
                 FileInfo = $"Файл: {System.IO.Path.GetFileName(paths[0])}, каналов: {AllChannels.Count}";
                 StatusText = $"Загружено {AllChannels.Count} каналов";
             }
@@ -198,6 +238,8 @@ namespace ComtradeViewer.ViewModel.ViewModels
             {
                 TimeMin = allPoints.Min(p => p.Time);
                 TimeMax = allPoints.Max(p => p.Time);
+                OnPropertyChanged(nameof(ScrollValue));
+                OnPropertyChanged(nameof(ViewportSize));
             }
         }
 
@@ -207,6 +249,8 @@ namespace ComtradeViewer.ViewModel.ViewModels
             {
                 TimeMin = min;
                 TimeMax = max;
+                OnPropertyChanged(nameof(ScrollValue));
+                OnPropertyChanged(nameof(ViewportSize));
             }
         }
     }
