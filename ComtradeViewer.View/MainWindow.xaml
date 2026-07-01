@@ -3,9 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:ComtradeViewer.ViewModel.ViewModels;assembly=ComtradeViewer.ViewModel"
         xmlns:views="clr-namespace:ComtradeViewer.View.Views"
+        xmlns:conv="clr-namespace:ComtradeViewer.View.Converters"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="Comtrade Viewer" Height="800" Width="1200"
         WindowStartupLocation="CenterScreen">
     
+    <Window.Resources>
+        <conv:StringToBrushConverter x:Key="StringToBrushConverter"/>
+    </Window.Resources>
+
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
@@ -13,8 +19,7 @@
     <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="10">
             <Button Content="Открыть CFG..." Click="OpenButton_Click" Padding="10,5"/>
-            
-            <ComboBox Width="260" Margin="10,0" 
+            <ComboBox Width="320" Margin="10,0" 
                       ItemsSource="{Binding AllChannels}" 
                       StaysOpenOnEdit="True"
                       VerticalContentAlignment="Center">
@@ -71,9 +76,35 @@
                                                  MaxHeight="300">
                                             <ListBox.ItemTemplate>
                                                 <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding IsVisible}" 
-                                                              Content="{Binding PlotViewModel.Channel.Name}"
-                                                              VerticalAlignment="Center"/>
+                                                    <StackPanel Orientation="Horizontal" Margin="2">
+                                                        <CheckBox IsChecked="{Binding IsVisible}" 
+                                                                  Content="{Binding PlotViewModel.Channel.Name}"
+                                                                  VerticalAlignment="Center"
+                                                                  Width="150"/>
+                                                        <ComboBox Width="60" Margin="5,0,0,0"
+                                                                  SelectedItem="{Binding SelectedColor}"
+                                                                  VerticalAlignment="Center">
+                                                            <ComboBox.Items>
+                                                                <sys:String>SteelBlue</sys:String>
+                                                                <sys:String>DarkRed</sys:String>
+                                                                <sys:String>DarkGreen</sys:String>
+                                                                <sys:String>DarkOrange</sys:String>
+                                                                <sys:String>Purple</sys:String>
+                                                                <sys:String>Teal</sys:String>
+                                                                <sys:String>Crimson</sys:String>
+                                                                <sys:String>Olive</sys:String>
+                                                                <sys:String>Navy</sys:String>
+                                                                <sys:String>Maroon</sys:String>
+                                                            </ComboBox.Items>
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Rectangle Width="20" Height="12" 
+                                                                               Fill="{Binding Converter={StaticResource StringToBrushConverter}}" 
+                                                                               Stroke="Gray" StrokeThickness="0.5"/>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+                                                    </StackPanel>
                                                 </DataTemplate>
                                             </ListBox.ItemTemplate>
                                         </ListBox>
@@ -92,31 +123,25 @@
             <TextBlock Text="{Binding FileInfo}" Margin="20,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <DockPanel LastChildFill="True" Margin="0,0,0,0">
-            <ScrollBar x:Name="HorizontalScrollBar"
-                       DockPanel.Dock="Bottom"
-                       Orientation="Horizontal"
-                       Minimum="{Binding ScrollMinimum}"
-                       Maximum="{Binding ScrollMaximum}"
-                       Value="{Binding ScrollValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                       ViewportSize="{Binding ViewportSize}"
-                       SmallChange="0.01"
-                       LargeChange="{Binding ViewportSize}"
-                       Margin="0,2,0,2"
-                       Visibility="Visible"/>
+        <ScrollBar DockPanel.Dock="Bottom" 
+                   Orientation="Horizontal"
+                   Minimum="{Binding ScrollMinimum}"
+                   Maximum="{Binding ScrollMaximum}"
+                   Value="{Binding ScrollValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   ViewportSize="{Binding ViewportSize}"
+                   SmallChange="0.01"
+                   LargeChange="{Binding ViewportSize}"
+                   Margin="10,0,10,5"/>
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto" 
-                          HorizontalScrollBarVisibility="Disabled"
-                          DockPanel.Dock="Top">
-                <ItemsControl ItemsSource="{Binding FilteredChannelPlots}"
-                              VirtualizingStackPanel.IsVirtualizing="False">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <views:ChannelPlotControl DataContext="{Binding}"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
-        </DockPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding FilteredChannelPlots}"
+                          VirtualizingStackPanel.IsVirtualizing="False">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <views:ChannelPlotControl DataContext="{Binding}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </DockPanel>
 </Window>

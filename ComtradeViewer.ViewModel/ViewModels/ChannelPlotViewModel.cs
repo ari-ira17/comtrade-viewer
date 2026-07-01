@@ -8,6 +8,17 @@ namespace ComtradeViewer.ViewModel.ViewModels
         public ChannelInfo Channel { get; }
         public List<SamplePoint> Points { get; }
 
+        private string _color = "Gray";
+        public string Color
+        {
+            get => _color;
+            set
+            {
+                _color = value;
+                OnPropertyChanged();
+            }
+        }
+
         private SamplePoint? _selectedPoint;
         public SamplePoint? SelectedPoint
         {
