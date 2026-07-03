@@ -1,6 +1,5 @@
 <Solution>
   <Project Path="ComtradeViewer.Model/ComtradeViewer.Model.csproj" />
-  <Project Path="ComtradeViewer.Tests/ComtradeViewer.Tests.csproj" />
   <Project Path="ComtradeViewer.View/ComtradeViewer.View.csproj" />
   <Project Path="ComtradeViewer.ViewModel/ComtradeViewer.ViewModel.csproj" />
 </Solution>

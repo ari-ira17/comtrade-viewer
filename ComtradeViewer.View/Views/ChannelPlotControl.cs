@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -107,16 +105,13 @@ namespace ComtradeViewer.View.Views
 
             this.DataContextChanged += (s, e) =>
             {
-                // отписываемся от предыдущей vm, если была
                 if (_vm != null)
                     _vm.PropertyChanged -= Vm_PropertyChanged;
 
                 _vm = DataContext as ChannelPlotViewModel;
                 if (_vm != null)
                 {
-                    // подписываемся всегда на изменение цвета у VM, чтобы гарантированно перерисовать график
                     _vm.PropertyChanged += Vm_PropertyChanged;
-                    // попробуем найти MainViewModel и подписаться на его свойства
                     _mainVm = FindMainViewModel();
                     SubscribeToMainVm();
                 }
@@ -126,7 +121,6 @@ namespace ComtradeViewer.View.Views
             this.Loaded += (s, e) => DrawPlot();
             this.Loaded += (s, e) =>
             {
-                // при загрузке контролла MainViewModel может уже быть доступен в визуальном дереве
                 if (_mainVm == null)
                 {
                     _mainVm = FindMainViewModel();
