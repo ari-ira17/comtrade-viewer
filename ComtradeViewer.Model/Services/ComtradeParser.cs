@@ -8,61 +8,152 @@ using ComtradeViewer.Model.Models;
 
 namespace ComtradeViewer.Model.Services
 {
+    /// <summary>
+    /// Индексы полей в строке конфигурационного файла для аналоговых каналов
+    /// </summary>
+    internal enum ConfigAnalogFieldIndex
+    {
+        /// <summary>Номер канала</summary>
+        Index = 0,
+        /// <summary>Название канала</summary>
+        Name = 1,
+        /// <summary>Единица измерения</summary>
+        Unit = 4,
+        /// <summary>Коэффициент масштабирования A</summary>
+        FactorA = 5,
+        /// <summary>Коэффициент масштабирования B</summary>
+        FactorB = 6,
+        /// <summary>Минимальное значение</summary>
+        MinValue = 8,
+        /// <summary>Максимальное значение</summary>
+        MaxValue = 9
+    }
+
+    /// <summary>
+    /// Индексы полей в строке конфигурационного файла для цифровых каналов
+    /// </summary>
+    internal enum ConfigDigitalFieldIndex
+    {
+        /// <summary>Номер канала</summary>
+        Index = 0,
+        /// <summary>Название канала</summary>
+        Name = 1
+    }
+
+    /// <summary>
+    /// Индексы полей в строке данных
+    /// </summary>
+    internal enum DataFileFieldIndex
+    {
+        /// <summary>Номер записи</summary>
+        RecordNumber = 0,
+        /// <summary>Временная метка</summary>
+        TimeMs = 1,
+        /// <summary>Начало данных аналоговых каналов</summary>
+        AnalogDataStart = 2
+    }
+
+    /// <summary>
+    /// Константы парсера COMTRADE
+    /// </summary>
+    internal static class ComtradeConstants
+    {
+        /// <summary>Разделитель полей в конфигурационном и файлах данных</summary>
+        public const char FieldSeparator = ',';
+
+        /// <summary>Суффикс для количества аналоговых каналов в строке конфигурации</summary>
+        public const string AnalogChannelCountSuffix = "A";
+
+        /// <summary>Суффикс для количества цифровых каналов в строке конфигурации</summary>
+        public const string DigitalChannelCountSuffix = "D";
+
+        /// <summary>Коэффициент для преобразования микросекунд в миллисекунды</summary>
+        public const double TimeConversionFactor = 1000.0;
+
+        /// <summary>Значение FactorA по умолчанию для цифровых каналов</summary>
+        public const double DefaultDigitalFactorA = 1.0;
+
+        /// <summary>Значение FactorB по умолчанию для цифровых каналов</summary>
+        public const double DefaultDigitalFactorB = 0.0;
+
+        /// <summary>Минимальное значение для цифровых каналов</summary>
+        public const double DefaultDigitalMinValue = 0.0;
+
+        /// <summary>Максимальное значение для цифровых каналов</summary>
+        public const double DefaultDigitalMaxValue = 1.0;
+
+        /// <summary>Пустая строка для цифровых каналов</summary>
+        public const string EmptyUnit = "";
+
+        /// <summary>Кодировка по умолчанию для COMTRADE файлов (Windows-1251)</summary>
+        public const int DefaultEncodingCodePage = 1251;
+    }
+
     public class ComtradeParser : IComtradeParser
     {
-        public ComtradeParseResult Parse(string cfgPath, string datPath)
+        private readonly Encoding _encoding;
+
+        public ComtradeParser() : this(ComtradeConstants.DefaultEncodingCodePage)
         {
-            Encoding encoding;
+        }
+
+        public ComtradeParser(int encodingCodePage)
+        {
             try
             {
-                encoding = Encoding.GetEncoding(1251);
+                _encoding = Encoding.GetEncoding(encodingCodePage);
             }
             catch (NotSupportedException)
             {
-                encoding = Encoding.Default;
+                _encoding = Encoding.Default;
             }
+        }
 
+        public ComtradeParseResult Parse(string cfgPath, string datPath)
+        {
             var analogChannels = new List<ChannelInfo>();
             var digitalChannels = new List<ChannelInfo>();
             int totalAnalog = 0, totalDigital = 0;
 
-            using (var reader = new StreamReader(cfgPath, encoding))
+            using (var reader = new StreamReader(cfgPath, _encoding))
             {
-                reader.ReadLine(); 
+                reader.ReadLine(); // Пропускаем первую строку
 
-                string[] summary = reader.ReadLine().Split(',');
-                totalAnalog = int.Parse(summary[1].Replace("A", "").Trim());
-                totalDigital = int.Parse(summary[2].Replace("D", "").Trim());
+                string[] summary = reader.ReadLine().Split(ComtradeConstants.FieldSeparator);
+                totalAnalog = int.Parse(summary[1].Replace(ComtradeConstants.AnalogChannelCountSuffix, "").Trim());
+                totalDigital = int.Parse(summary[2].Replace(ComtradeConstants.DigitalChannelCountSuffix, "").Trim());
 
+                // Чтение аналоговых каналов
                 for (int i = 0; i < totalAnalog; i++)
                 {
-                    string[] line = reader.ReadLine().Split(',');
+                    string[] line = reader.ReadLine().Split(ComtradeConstants.FieldSeparator);
                     var channel = new ChannelInfo
                     {
-                        Index = int.Parse(line[0].Trim()),
-                        Name = line[1].Trim(),
-                        Unit = line[4].Trim(),
-                        FactorA = double.Parse(line[5].Trim(), CultureInfo.InvariantCulture),
-                        FactorB = double.Parse(line[6].Trim(), CultureInfo.InvariantCulture),
-                        MinValue = double.Parse(line[8].Trim(), CultureInfo.InvariantCulture), // правильный индекс
-                        MaxValue = double.Parse(line[9].Trim(), CultureInfo.InvariantCulture), // правильный индекс
+                        Index = int.Parse(line[(int)ConfigAnalogFieldIndex.Index].Trim()),
+                        Name = line[(int)ConfigAnalogFieldIndex.Name].Trim(),
+                        Unit = line[(int)ConfigAnalogFieldIndex.Unit].Trim(),
+                        FactorA = double.Parse(line[(int)ConfigAnalogFieldIndex.FactorA].Trim(), CultureInfo.InvariantCulture),
+                        FactorB = double.Parse(line[(int)ConfigAnalogFieldIndex.FactorB].Trim(), CultureInfo.InvariantCulture),
+                        MinValue = double.Parse(line[(int)ConfigAnalogFieldIndex.MinValue].Trim(), CultureInfo.InvariantCulture),
+                        MaxValue = double.Parse(line[(int)ConfigAnalogFieldIndex.MaxValue].Trim(), CultureInfo.InvariantCulture),
                         IsDigital = false
                     };
                     analogChannels.Add(channel);
                 }
 
+                // Чтение цифровых каналов
                 for (int i = 0; i < totalDigital; i++)
                 {
-                    string[] line = reader.ReadLine().Split(',');
+                    string[] line = reader.ReadLine().Split(ComtradeConstants.FieldSeparator);
                     var channel = new ChannelInfo
                     {
-                        Index = int.Parse(line[0].Trim()),
-                        Name = line[1].Trim(),
-                        Unit = "",
-                        FactorA = 1.0,
-                        FactorB = 0.0,
-                        MinValue = 0, 
-                        MaxValue = 1,
+                        Index = int.Parse(line[(int)ConfigDigitalFieldIndex.Index].Trim()),
+                        Name = line[(int)ConfigDigitalFieldIndex.Name].Trim(),
+                        Unit = ComtradeConstants.EmptyUnit,
+                        FactorA = ComtradeConstants.DefaultDigitalFactorA,
+                        FactorB = ComtradeConstants.DefaultDigitalFactorB,
+                        MinValue = ComtradeConstants.DefaultDigitalMinValue,
+                        MaxValue = ComtradeConstants.DefaultDigitalMaxValue,
                         IsDigital = true
                     };
                     digitalChannels.Add(channel);
@@ -77,25 +168,29 @@ namespace ComtradeViewer.Model.Services
             foreach (var ch in allChannels)
                 result[ch.Name] = new List<SamplePoint>();
 
-            using (var reader = new StreamReader(datPath, encoding))
+            // Чтение данных
+            using (var reader = new StreamReader(datPath, _encoding))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     if (string.IsNullOrWhiteSpace(line)) continue;
-                    string[] tokens = line.Split(',');
+                    string[] tokens = line.Split(ComtradeConstants.FieldSeparator);
 
-                    double timeMs = double.Parse(tokens[1].Trim()) / 1000.0;
+                    double timeMs = double.Parse(tokens[(int)DataFileFieldIndex.TimeMs].Trim(), CultureInfo.InvariantCulture) 
+                        / ComtradeConstants.TimeConversionFactor;
 
+                    // Обработка аналоговых каналов
                     for (int i = 0; i < totalAnalog; i++)
                     {
-                        double rawValue = double.Parse(tokens[2 + i].Trim(), CultureInfo.InvariantCulture);
+                        double rawValue = double.Parse(tokens[(int)DataFileFieldIndex.AnalogDataStart + i].Trim(), CultureInfo.InvariantCulture);
                         double physicalValue = rawValue * analogChannels[i].FactorA + analogChannels[i].FactorB;
                         string channelName = analogChannels[i].Name;
                         result[channelName].Add(new SamplePoint(timeMs, physicalValue));
                     }
 
-                    int digitalStartIndex = 2 + totalAnalog;
+                    // Обработка цифровых каналов
+                    int digitalStartIndex = (int)DataFileFieldIndex.AnalogDataStart + totalAnalog;
                     for (int i = 0; i < totalDigital; i++)
                     {
                         string token = tokens[digitalStartIndex + i].Trim();
@@ -106,6 +201,7 @@ namespace ComtradeViewer.Model.Services
                 }
             }
 
+            // Определение диапазонов для цифровых каналов
             foreach (var digitalChannel in digitalChannels)
             {
                 if (result.TryGetValue(digitalChannel.Name, out var points) && points.Count > 0)
