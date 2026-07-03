@@ -117,6 +117,7 @@
             </ComboBox>
 
             <Button Content="Сбросить масштаб" Command="{Binding ResetZoomCommand}" Padding="10,5" Margin="10,0"/>
+            <Button Content="Сброс диапазона" Command="{Binding ClearRangeCommand}" Padding="10,5" Margin="10,0"/>
             
             <TextBlock Text="{Binding StatusText}" Margin="20,0,0,0" 
                        VerticalAlignment="Center" Foreground="DarkGreen" FontWeight="SemiBold"/>

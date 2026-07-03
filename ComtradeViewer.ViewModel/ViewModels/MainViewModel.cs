@@ -1,3 +1,5 @@
+#nullable disable
+
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -17,7 +19,56 @@ namespace ComtradeViewer.ViewModel.ViewModels
 
         private double _timeMin;
         private double _timeMax;
+
         private double? _hoverTime;
+        public double? HoverTime
+        {
+            get => _hoverTime;
+            set
+            {
+                if (_hoverTime != value)
+                {
+                    _hoverTime = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HoverTimeChanged));
+                }
+            }
+        }
+        public bool HoverTimeChanged { get; set; }
+
+        // ---- Диапазон ----
+        private double? _rangeLeft;
+        private double? _rangeRight;
+
+        public double? RangeLeft
+        {
+            get => _rangeLeft;
+            set
+            {
+                if (_rangeLeft != value)
+                {
+                    _rangeLeft = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(RangeLeftChanged));
+                }
+            }
+        }
+        public bool RangeLeftChanged { get; set; }
+
+        public double? RangeRight
+        {
+            get => _rangeRight;
+            set
+            {
+                if (_rangeRight != value)
+                {
+                    _rangeRight = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(RangeRightChanged));
+                }
+            }
+        }
+        public bool RangeRightChanged { get; set; }
 
         public MainViewModel() : this(new ComtradeParser()) { }
 
@@ -28,6 +79,8 @@ namespace ComtradeViewer.ViewModel.ViewModels
             ResetZoomCommand = new RelayCommand(_ => ResetZoom());
             SelectAllCommand = new RelayCommand(_ => SelectAll(true));
             DeselectAllCommand = new RelayCommand(_ => SelectAll(false));
+            ClearRangeCommand = new RelayCommand(_ => ClearRange());
+
             _allChannels = new ObservableCollection<ChannelVisibilityItem>();
             _filteredChannelPlots = new ObservableCollection<ChannelPlotViewModel>();
             StatusText = "Ожидание файла...";
@@ -112,21 +165,7 @@ namespace ComtradeViewer.ViewModel.ViewModels
 
         public bool TimeRangeChanged { get; set; }
 
-        public double? HoverTime
-        {
-            get => _hoverTime;
-            set
-            {
-                if (_hoverTime != value)
-                {
-                    _hoverTime = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(HoverTimeChanged));
-                }
-            }
-        }
-        public bool HoverTimeChanged { get; set; }
-
+        // ---- ScrollBar ----
         public double ScrollMinimum => 0;
         public double ScrollMaximum
         {
@@ -161,6 +200,7 @@ namespace ComtradeViewer.ViewModel.ViewModels
         public ICommand ResetZoomCommand { get; }
         public ICommand SelectAllCommand { get; }
         public ICommand DeselectAllCommand { get; }
+        public ICommand ClearRangeCommand { get; }
 
         private void ExecuteOpenFile(object parameter)
         {
@@ -235,7 +275,6 @@ namespace ComtradeViewer.ViewModel.ViewModels
                 .Where(item => item.IsVisible)
                 .Select(item => item.PlotViewModel)
                 .ToList();
-
             FilteredChannelPlots = new ObservableCollection<ChannelPlotViewModel>(visible);
             OnPropertyChanged(nameof(FilteredChannelPlots));
         }
@@ -268,6 +307,12 @@ namespace ComtradeViewer.ViewModel.ViewModels
                 OnPropertyChanged(nameof(ScrollValue));
                 OnPropertyChanged(nameof(ViewportSize));
             }
+        }
+
+        private void ClearRange()
+        {
+            RangeLeft = null;
+            RangeRight = null;
         }
     }
 }
