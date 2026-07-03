@@ -107,40 +107,32 @@ namespace ComtradeViewer.View.Views
 
             this.DataContextChanged += (s, e) =>
             {
+                // отписываемся от предыдущей vm, если была
+                if (_vm != null)
+                    _vm.PropertyChanged -= Vm_PropertyChanged;
+
                 _vm = DataContext as ChannelPlotViewModel;
                 if (_vm != null)
                 {
+                    // подписываемся всегда на изменение цвета у VM, чтобы гарантированно перерисовать график
+                    _vm.PropertyChanged += Vm_PropertyChanged;
+                    // попробуем найти MainViewModel и подписаться на его свойства
                     _mainVm = FindMainViewModel();
-                    if (_mainVm != null)
-                    {
-                        _mainVm.PropertyChanged += (sender, args) =>
-                        {
-                            if (args.PropertyName == nameof(MainViewModel.TimeRangeChanged))
-                            {
-                                _isDrawn = false;
-                                DrawPlot();
-                            }
-                            else if (args.PropertyName == nameof(MainViewModel.HoverTimeChanged) ||
-                                     args.PropertyName == nameof(MainViewModel.RangeLeftChanged) ||
-                                     args.PropertyName == nameof(MainViewModel.RangeRightChanged))
-                            {
-                                UpdateOverlay();
-                            }
-                        };
-                        _vm.PropertyChanged += (s2, e2) =>
-                        {
-                            if (e2.PropertyName == nameof(ChannelPlotViewModel.Color))
-                            {
-                                _isDrawn = false;
-                                DrawPlot();
-                            }
-                        };
-                    }
+                    SubscribeToMainVm();
                 }
                 DrawPlot();
             };
 
             this.Loaded += (s, e) => DrawPlot();
+            this.Loaded += (s, e) =>
+            {
+                // при загрузке контролла MainViewModel может уже быть доступен в визуальном дереве
+                if (_mainVm == null)
+                {
+                    _mainVm = FindMainViewModel();
+                    SubscribeToMainVm();
+                }
+            };
             this.SizeChanged += (s, e) =>
             {
                 _isDrawn = false;
@@ -422,6 +414,37 @@ namespace ComtradeViewer.View.Views
             UpdateOverlay();
         }
 
+        private void Vm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ChannelPlotViewModel.Color))
+            {
+                _isDrawn = false;
+                DrawPlot();
+            }
+        }
+
+        private void SubscribeToMainVm()
+        {
+            if (_mainVm == null) return;
+            _mainVm.PropertyChanged -= MainVm_PropertyChanged;
+            _mainVm.PropertyChanged += MainVm_PropertyChanged;
+        }
+
+        private void MainVm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs args)
+        {
+            if (args.PropertyName == nameof(MainViewModel.TimeRangeChanged))
+            {
+                _isDrawn = false;
+                DrawPlot();
+            }
+            else if (args.PropertyName == nameof(MainViewModel.HoverTimeChanged) ||
+                     args.PropertyName == nameof(MainViewModel.RangeLeftChanged) ||
+                     args.PropertyName == nameof(MainViewModel.RangeRightChanged))
+            {
+                UpdateOverlay();
+            }
+        }
+
         private void UpdateOverlay()
         {
             _overlayCanvas.Children.Clear();
@@ -562,39 +585,6 @@ namespace ComtradeViewer.View.Views
                 }
             }
 
-            if (leftSet && rightSet)
-            {
-                double leftTime = _mainVm.RangeLeft.Value;
-                double rightTime = _mainVm.RangeRight.Value;
-                double diffSeconds = rightTime - leftTime;
-                double diffMs = diffSeconds * 1000.0;
-
-                string infoText = $"L: {leftTime:F3} с\nR: {rightTime:F3} с\nΔ = {diffMs:F3} мс";
-
-                var infoBorder = new Border
-                {
-                    Background = new SolidColorBrush(Color.FromArgb(220, 255, 255, 220)),
-                    BorderBrush = Brushes.Black,
-                    BorderThickness = new Thickness(1),
-                    Padding = new Thickness(6),
-                    CornerRadius = new CornerRadius(4)
-                };
-                var infoTextBlock = new TextBlock
-                {
-                    Text = infoText,
-                    FontSize = 11,
-                    Foreground = Brushes.Black,
-                    FontWeight = FontWeights.Bold,
-                    LineHeight = 14
-                };
-                infoBorder.Child = infoTextBlock;
-
-                double infoX = canvasWidth - MarginRight - 160; 
-                double infoY = MarginTop + 5;
-                Canvas.SetLeft(infoBorder, infoX);
-                Canvas.SetTop(infoBorder, infoY);
-                _overlayCanvas.Children.Add(infoBorder);
-            }
         }
 
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)

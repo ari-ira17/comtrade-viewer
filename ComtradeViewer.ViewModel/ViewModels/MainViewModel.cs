@@ -36,7 +36,6 @@ namespace ComtradeViewer.ViewModel.ViewModels
         }
         public bool HoverTimeChanged { get; set; }
 
-        // ---- Диапазон ----
         private double? _rangeLeft;
         private double? _rangeRight;
 
@@ -50,6 +49,8 @@ namespace ComtradeViewer.ViewModel.ViewModels
                     _rangeLeft = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(RangeLeftChanged));
+                    OnPropertyChanged(nameof(RangeInfoText));
+                    OnPropertyChanged(nameof(HasRangeInfo));
                 }
             }
         }
@@ -65,9 +66,26 @@ namespace ComtradeViewer.ViewModel.ViewModels
                     _rangeRight = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(RangeRightChanged));
+                    OnPropertyChanged(nameof(RangeInfoText));
+                    OnPropertyChanged(nameof(HasRangeInfo));
                 }
             }
         }
+
+        public string RangeInfoText
+        {
+            get
+            {
+                if (!_rangeLeft.HasValue || !_rangeRight.HasValue)
+                    return string.Empty;
+                double leftTime = _rangeLeft.Value;
+                double rightTime = _rangeRight.Value;
+                double diffMs = (rightTime - leftTime) * 1000.0;
+                return $"L: {leftTime:F3} с\nR: {rightTime:F3} с\nΔ = {diffMs:F3} мс";
+            }
+        }
+
+        public bool HasRangeInfo => _rangeLeft.HasValue && _rangeRight.HasValue;
         public bool RangeRightChanged { get; set; }
 
         public MainViewModel() : this(new ComtradeParser()) { }
@@ -165,7 +183,6 @@ namespace ComtradeViewer.ViewModel.ViewModels
 
         public bool TimeRangeChanged { get; set; }
 
-        // ---- ScrollBar ----
         public double ScrollMinimum => 0;
         public double ScrollMaximum
         {

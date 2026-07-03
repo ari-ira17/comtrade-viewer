@@ -10,13 +10,19 @@
     
     <Window.Resources>
         <conv:StringToBrushConverter x:Key="StringToBrushConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <DataTemplate x:Key="ColorSwatchTemplate">
+            <Rectangle Width="40" Height="16" Stroke="Gray" StrokeThickness="0.5"
+                       Fill="{Binding Converter={StaticResource StringToBrushConverter}}"/>
+        </DataTemplate>
     </Window.Resources>
 
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
 
-    <DockPanel LastChildFill="True">
+    <Grid>
+        <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="10">
             <Button Content="Открыть CFG..." Click="OpenButton_Click" Padding="10,5"/>
             <ComboBox Width="320" Margin="10,0" 
@@ -25,9 +31,15 @@
                       VerticalContentAlignment="Center">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
-                        <CheckBox IsChecked="{Binding IsVisible}" 
-                                  Content="{Binding PlotViewModel.Channel.Name}"
-                                  VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <CheckBox IsChecked="{Binding IsVisible}" 
+                                      Content="{Binding PlotViewModel.Channel.Name}"
+                                      VerticalAlignment="Center"/>
+                            <ComboBox Width="60" Margin="8,0,0,0"
+                                      SelectedItem="{Binding SelectedColor}" VerticalAlignment="Center"
+                                      ItemsSource="{x:Static vm:ChannelVisibilityItem.ColorPalette}"
+                                      ItemTemplate="{StaticResource ColorSwatchTemplate}"/>
+                        </StackPanel>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
                 <ComboBox.ItemContainerStyle>
@@ -76,34 +88,15 @@
                                                  MaxHeight="300">
                                             <ListBox.ItemTemplate>
                                                 <DataTemplate>
-                                                    <StackPanel Orientation="Horizontal" Margin="2">
+                                                    <StackPanel Orientation="Horizontal" Margin="2" VerticalAlignment="Center">
                                                         <CheckBox IsChecked="{Binding IsVisible}" 
                                                                   Content="{Binding PlotViewModel.Channel.Name}"
                                                                   VerticalAlignment="Center"
                                                                   Width="150"/>
-                                                        <ComboBox Width="60" Margin="5,0,0,0"
-                                                                  SelectedItem="{Binding SelectedColor}"
-                                                                  VerticalAlignment="Center">
-                                                            <ComboBox.Items>
-                                                                <sys:String>SteelBlue</sys:String>
-                                                                <sys:String>DarkRed</sys:String>
-                                                                <sys:String>DarkGreen</sys:String>
-                                                                <sys:String>DarkOrange</sys:String>
-                                                                <sys:String>Purple</sys:String>
-                                                                <sys:String>Teal</sys:String>
-                                                                <sys:String>Crimson</sys:String>
-                                                                <sys:String>Olive</sys:String>
-                                                                <sys:String>Navy</sys:String>
-                                                                <sys:String>Maroon</sys:String>
-                                                            </ComboBox.Items>
-                                                            <ComboBox.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <Rectangle Width="20" Height="12" 
-                                                                               Fill="{Binding Converter={StaticResource StringToBrushConverter}}" 
-                                                                               Stroke="Gray" StrokeThickness="0.5"/>
-                                                                </DataTemplate>
-                                                            </ComboBox.ItemTemplate>
-                                                        </ComboBox>
+                                                        <ComboBox Width="60" Margin="8,0,0,0"
+                                                                  SelectedItem="{Binding SelectedColor}" VerticalAlignment="Center"
+                                                                  ItemsSource="{x:Static vm:ChannelVisibilityItem.ColorPalette}"
+                                                                  ItemTemplate="{StaticResource ColorSwatchTemplate}"/>
                                                     </StackPanel>
                                                 </DataTemplate>
                                             </ListBox.ItemTemplate>
@@ -144,5 +137,12 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-    </DockPanel>
+        </DockPanel>
+
+        <Border Background="#DDFFFFE0" BorderBrush="Black" BorderThickness="1" CornerRadius="4"
+            Padding="6" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"
+                Visibility="{Binding HasRangeInfo, Converter={StaticResource BoolToVis}}">
+            <TextBlock Text="{Binding RangeInfoText}" FontWeight="Bold" LineHeight="14"/>
+        </Border>
+    </Grid>
 </Window>

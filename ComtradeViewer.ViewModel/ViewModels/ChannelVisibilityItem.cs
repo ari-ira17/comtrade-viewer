@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Threading;
 
 namespace ComtradeViewer.ViewModel.ViewModels
 {
@@ -7,6 +8,22 @@ namespace ComtradeViewer.ViewModel.ViewModels
     {
         public ChannelPlotViewModel PlotViewModel { get; }
         private bool _isVisible = true;
+
+        private static readonly string[] DefaultPalette = new[]
+        {
+            "#1F77B4", 
+            "#FF7F0E", 
+            "#2CA02C", 
+            "#D62728", 
+            "#9467BD", 
+            "#8C564B", 
+            "#E377C2", 
+            "#17BECF", 
+        };
+
+        private static int _colorIndex = -1;
+
+        public static string[] ColorPalette => DefaultPalette;
 
         public bool IsVisible
         {
@@ -22,7 +39,6 @@ namespace ComtradeViewer.ViewModel.ViewModels
         }
 
         private string _selectedColor;
-
         public string SelectedColor
         {
             get => _selectedColor;
@@ -32,7 +48,6 @@ namespace ComtradeViewer.ViewModel.ViewModels
                 {
                     _selectedColor = value;
                     OnPropertyChanged();
-                    // Обновляем цвет в PlotViewModel
                     if (PlotViewModel != null)
                         PlotViewModel.Color = value;
                 }
@@ -42,15 +57,19 @@ namespace ComtradeViewer.ViewModel.ViewModels
         public ChannelVisibilityItem(ChannelPlotViewModel plot)
         {
             PlotViewModel = plot;
-            // Назначаем случайный цвет из палитры при создании
-            var colors = new[]
+
+            if (!string.IsNullOrWhiteSpace(PlotViewModel?.Color) &&
+                !PlotViewModel.Color.Equals("Gray", StringComparison.OrdinalIgnoreCase))
             {
-                "SteelBlue", "DarkRed", "DarkGreen", "DarkOrange",
-                "Purple", "Teal", "Crimson", "Olive",
-                "Navy", "Maroon", "DarkSlateBlue", "Sienna"
-            };
-            var rnd = new Random();
-            SelectedColor = colors[rnd.Next(colors.Length)];
+                SelectedColor = PlotViewModel.Color;
+            }
+            else
+            {
+                int index = Interlocked.Increment(ref _colorIndex) % DefaultPalette.Length;
+                SelectedColor = DefaultPalette[index];
+                if (PlotViewModel != null)
+                    PlotViewModel.Color = SelectedColor;
+            }
         }
     }
 }
