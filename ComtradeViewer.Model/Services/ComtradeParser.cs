@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Linq;
 using ComtradeViewer.Model.Models;
 
 namespace ComtradeViewer.Model.Services
@@ -22,11 +23,13 @@ namespace ComtradeViewer.Model.Services
             }
 
             var analogChannels = new List<ChannelInfo>();
+            var digitalChannels = new List<ChannelInfo>();
             int totalAnalog = 0, totalDigital = 0;
 
             using (var reader = new StreamReader(cfgPath, encoding))
             {
-                reader.ReadLine();
+                reader.ReadLine(); 
+
                 string[] summary = reader.ReadLine().Split(',');
                 totalAnalog = int.Parse(summary[1].Replace("A", "").Trim());
                 totalDigital = int.Parse(summary[2].Replace("D", "").Trim());
@@ -41,15 +44,37 @@ namespace ComtradeViewer.Model.Services
                         Unit = line[4].Trim(),
                         FactorA = double.Parse(line[5].Trim(), CultureInfo.InvariantCulture),
                         FactorB = double.Parse(line[6].Trim(), CultureInfo.InvariantCulture),
-                        MinValue = int.Parse(line[8].Trim(), CultureInfo.InvariantCulture),
-                        MaxValue = int.Parse(line[9].Trim(), CultureInfo.InvariantCulture)
+                        MinValue = double.Parse(line[8].Trim(), CultureInfo.InvariantCulture), // правильный индекс
+                        MaxValue = double.Parse(line[9].Trim(), CultureInfo.InvariantCulture), // правильный индекс
+                        IsDigital = false
                     };
                     analogChannels.Add(channel);
                 }
+
+                for (int i = 0; i < totalDigital; i++)
+                {
+                    string[] line = reader.ReadLine().Split(',');
+                    var channel = new ChannelInfo
+                    {
+                        Index = int.Parse(line[0].Trim()),
+                        Name = line[1].Trim(),
+                        Unit = "",
+                        FactorA = 1.0,
+                        FactorB = 0.0,
+                        MinValue = 0, 
+                        MaxValue = 1,
+                        IsDigital = true
+                    };
+                    digitalChannels.Add(channel);
+                }
             }
 
+            var allChannels = new List<ChannelInfo>();
+            allChannels.AddRange(analogChannels);
+            allChannels.AddRange(digitalChannels);
+
             var result = new Dictionary<string, List<SamplePoint>>();
-            foreach (var ch in analogChannels)
+            foreach (var ch in allChannels)
                 result[ch.Name] = new List<SamplePoint>();
 
             using (var reader = new StreamReader(datPath, encoding))
@@ -69,10 +94,28 @@ namespace ComtradeViewer.Model.Services
                         string channelName = analogChannels[i].Name;
                         result[channelName].Add(new SamplePoint(timeMs, physicalValue));
                     }
+
+                    int digitalStartIndex = 2 + totalAnalog;
+                    for (int i = 0; i < totalDigital; i++)
+                    {
+                        string token = tokens[digitalStartIndex + i].Trim();
+                        double value = double.Parse(token, CultureInfo.InvariantCulture);
+                        string channelName = digitalChannels[i].Name;
+                        result[channelName].Add(new SamplePoint(timeMs, value));
+                    }
                 }
             }
 
-            return new ComtradeParseResult { Data = result, Channels = analogChannels };
+            foreach (var digitalChannel in digitalChannels)
+            {
+                if (result.TryGetValue(digitalChannel.Name, out var points) && points.Count > 0)
+                {
+                    digitalChannel.MinValue = points.Min(p => p.Value);
+                    digitalChannel.MaxValue = points.Max(p => p.Value);
+                }
+            }
+
+            return new ComtradeParseResult { Data = result, Channels = allChannels };
         }
     }
 }
