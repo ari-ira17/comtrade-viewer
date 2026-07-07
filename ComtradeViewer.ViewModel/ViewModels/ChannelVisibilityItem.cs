@@ -1,6 +1,8 @@
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
+using System.Windows.Media;  
 
 namespace ComtradeViewer.ViewModel.ViewModels
 {
@@ -20,6 +22,9 @@ namespace ComtradeViewer.ViewModel.ViewModels
             "#E377C2", 
             "#17BECF", 
         };
+
+        public static Color[] ColorPaletteColors { get; } = 
+            DefaultPalette.Select(hex => (Color)ColorConverter.ConvertFromString(hex)).ToArray();
 
         private static int _colorIndex = -1;
 
