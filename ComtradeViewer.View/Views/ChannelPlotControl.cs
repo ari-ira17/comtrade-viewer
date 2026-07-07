@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using ComtradeViewer.Model.Models;
 using ComtradeViewer.Model.Services;
+using ComtradeViewer.ViewModel.Models;
 using ComtradeViewer.ViewModel.ViewModels;
 
 namespace ComtradeViewer.View.Views
@@ -39,7 +40,8 @@ namespace ComtradeViewer.View.Views
         private const double MarginLeft = 55;
         private const double MarginRight = 15;
         private const double MarginTop = 15;
-        private const double MarginBottom = 20; 
+        private const double MarginBottom = 20;
+
         public ChannelPlotControl()
         {
             this.Height = 200;
@@ -168,6 +170,29 @@ namespace ComtradeViewer.View.Views
             }
         }
 
+        /// <summary>
+        /// Форматирует время в зависимости от выбранного формата.
+        /// </summary>
+        private string FormatTime(double totalSeconds, TimeFormat fmt)
+        {
+            int ms = (int)(totalSeconds * 1000);
+            int minutes = ms / 60000;
+            int seconds = (ms % 60000) / 1000;
+            int millis = ms % 1000;
+
+            switch (fmt)
+            {
+                case TimeFormat.MinutesSecondsMilliseconds:
+                    return string.Format("{0:D2}:{1:D2}.{2:D3}", minutes, seconds, millis);
+                case TimeFormat.SecondsMilliseconds:
+                    return string.Format("{0:D2}.{1:D3}", minutes * 60 + seconds, millis);
+                case TimeFormat.Milliseconds:
+                    return ms.ToString();
+                default:
+                    return totalSeconds.ToString("F3");
+            }
+        }
+
         private void DrawPlot()
         {
             if (_isDrawn) return;
@@ -248,7 +273,7 @@ namespace ComtradeViewer.View.Views
 
             var path = new Path
             {
-                Stroke = curveBrush,
+                Stroke = curveBrush,  
                 StrokeThickness = 1.5,
                 Data = geometry
             };
@@ -303,6 +328,23 @@ namespace ComtradeViewer.View.Views
                 StrokeThickness = 1
             };
             _plotCanvas.Children.Add(xAxis);
+
+            int labelCount = Math.Max(visiblePoints.Count / 5, 1);
+            for (int i = 0; i < visiblePoints.Count; i += labelCount)
+            {
+                var pt = visiblePoints[i];
+                double x = MarginLeft + (pt.Time - timeMin) / (timeMax - timeMin) * plotWidth;
+                string timeStr = FormatTime(pt.Time, _vm.TimeFormat);
+                var label = new TextBlock
+                {
+                    Text = timeStr,
+                    FontSize = 10,
+                    Foreground = Brushes.Black
+                };
+                Canvas.SetLeft(label, x - 15);
+                Canvas.SetTop(label, canvasHeight - MarginBottom + 5);
+                _plotCanvas.Children.Add(label);
+            }
 
             double minVal = channel.MinValue;
             double maxVal = channel.MaxValue;
@@ -410,7 +452,8 @@ namespace ComtradeViewer.View.Views
 
         private void Vm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(ChannelPlotViewModel.Color))
+            if (e.PropertyName == nameof(ChannelPlotViewModel.Color) ||
+                e.PropertyName == nameof(ChannelPlotViewModel.TimeFormat))
             {
                 _isDrawn = false;
                 DrawPlot();
@@ -578,7 +621,6 @@ namespace ComtradeViewer.View.Views
                     _overlayCanvas.Children.Add(label);
                 }
             }
-
         }
 
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)
