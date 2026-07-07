@@ -14,36 +14,58 @@ ComtradeViewer/
 ├── README.md
 ├── ComtradeViewer.slnx
 │
-├── ComtradeViewer.Model/                 # Парсинг и бизнес-логика (net40)
+├── ComtradeViewer.Model/                 # Бизнес-логика и парсинг COMTRADE (net40)
 │   ├── ComtradeViewer.Model.csproj
 │   ├── Models/
-│   │   ├── ChannelInfo.cs                # Канал: имя, коэф., мин/макс из .cfg
-│   │   └── SamplePoint.cs                # Точка (время, значение)
+│   │   ├── ChannelInfo.cs
+│   │   └── SamplePoint.cs
 │   └── Services/
-│       ├── IComtradeParser.cs            # Интерфейс парсера
-│       ├── ComtradeParser.cs             # Реализация: чтение .cfg и .dat
-│       ├── ComtradeParseResult.cs        # Результат парсинга (данные + каналы)
-│       └── DataDownsampler.cs            # Прореживание Min-Max
+│       ├── ComtradeParser.cs
+│       ├── ComtradeParseResult.cs
+│       ├── DataDownsampler.cs
+│       └── IComtradeParser.cs
 │
-├── ComtradeViewer.ViewModel/             # Логика и команды (net40)
+├── ComtradeViewer.ViewModel/             # ViewModel, команды и вспомогательные модели (net40)
 │   ├── ComtradeViewer.ViewModel.csproj
-│   ├── RelayCommand.cs                   # ICommand
-│   ├── ViewModelBase.cs                  # INotifyPropertyChanged
+│   ├── Converters/
+│   ├── Models/
+│   │   ├── AppSettings.cs
+│   │   ├── ComtradeFile.cs
+│   │   └── SettingsChannelItem.cs
+│   ├── RelayCommand.cs
+│   ├── Services/
+│   │   └── SettingsService.cs
+│   ├── ViewModelBase.cs
 │   └── ViewModels/
-│       ├── MainViewModel.cs              # Команды, коллекция каналов
-│       └── ChannelPlotViewModel.cs       # Модель представления одного канала
+│       ├── ChannelPlotViewModel.cs
+│       ├── ChannelVisibilityItem.cs
+│       └── MainViewModel.cs
 │
-└── ComtradeViewer.View/                  # WPF-интерфейс (net40)
-    ├── ComtradeViewer.View.csproj
-    ├── App.xaml
-    ├── App.xaml.cs
-    ├── MainWindow.xaml                   # Главное окно (ItemsControl + ScrollViewer)
-    ├── MainWindow.xaml.cs
-    ├── Views/
-    │   └── ChannelPlotControl.cs         # Полностью кодогенерируемый контрол графика
-    └── Converters/
-        └── PointsToGeometryConverter.cs  # (опционально) конвертер для привязок, если используется
+├── ComtradeViewer.View/                  # WPF-интерфейс (net40)
+│   ├── App.xaml
+│   ├── App.xaml.cs
+│   ├── AssemblyInfo.cs
+│   ├── ComtradeViewer.View.csproj
+│   ├── Converters/
+│   │   ├── ColorConverter.cs
+│   │   ├── PointsToGeometryConverter.cs
+│   │   └── StringToBrushConverter.cs
+│   ├── MainWindow.xaml
+│   ├── MainWindow.xaml.cs
+│   └── Views/
+│       ├── ChannelPlotControl.cs
+│       ├── SettingsWindow.xaml
+│       └── SettingsWindow.xaml.cs
+│
+├── ComtradeViewer.TestConsole/           # Консольное приложение для ручной проверки
+│   └── ComtradeViewer.TestConsole.csproj
+│
+└── ComtradeViewer.Tests/                 # Автотесты проекта
+    └── ComtradeViewer.Tests.csproj.bak
 ```
 
 ---
-Запуск `dotnet run --project ComtradeViewer.View/ComtradeViewer.View.csproj`
+Запуск:
+```bash
+dotnet run --project ComtradeViewer.View/ComtradeViewer.View.csproj
+```
