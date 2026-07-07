@@ -4,143 +4,66 @@
         xmlns:vm="clr-namespace:ComtradeViewer.ViewModel.ViewModels;assembly=ComtradeViewer.ViewModel"
         xmlns:views="clr-namespace:ComtradeViewer.View.Views"
         xmlns:conv="clr-namespace:ComtradeViewer.View.Converters"
-        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="Comtrade Viewer" Height="800" Width="1200"
         WindowStartupLocation="CenterScreen">
-    
     <Window.Resources>
-        <conv:StringToBrushConverter x:Key="StringToBrushConverter"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
-        <DataTemplate x:Key="ColorSwatchTemplate">
-            <Rectangle Width="40" Height="16" Stroke="Gray" StrokeThickness="0.5"
-                       Fill="{Binding Converter={StaticResource StringToBrushConverter}}"/>
-        </DataTemplate>
     </Window.Resources>
-
-    <Window.DataContext>
-        <vm:MainViewModel/>
-    </Window.DataContext>
+    
 
     <Grid>
         <DockPanel LastChildFill="True">
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="10">
-            <Button Content="Открыть CFG..." Click="OpenButton_Click" Padding="10,5"/>
-            <ComboBox Width="320" Margin="10,0" 
-                      ItemsSource="{Binding AllChannels}" 
-                      StaysOpenOnEdit="True"
-                      VerticalContentAlignment="Center">
-                <ComboBox.ItemTemplate>
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="10">
+                <Button Content="Открыть файл .cfg" Command="{Binding OpenFileCommand}" Padding="10,5"/>
+                <Button Content="Настройки" Command="{Binding OpenSettingsCommand}" Padding="10,5" Margin="10,0"/>
+                <Button Content="Сбросить масштаб" Command="{Binding ResetZoomCommand}" Padding="10,5" Margin="10,0"/>
+                <Button Content="Сброс диапазона" Command="{Binding ClearRangeCommand}" Padding="10,5" Margin="10,0"/>
+                <TextBlock Text="{Binding StatusText}" Margin="20,0,0,0" 
+                           VerticalAlignment="Center" Foreground="DarkGreen" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding FileInfo}" Margin="20,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <ScrollBar DockPanel.Dock="Bottom" 
+                       Orientation="Horizontal"
+                       Minimum="{Binding ScrollMinimum}"
+                       Maximum="{Binding ScrollMaximum}"
+                       Value="{Binding ScrollValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       ViewportSize="{Binding ViewportSize}"
+                       SmallChange="0.01"
+                       LargeChange="{Binding ViewportSize}"
+                       Margin="10,0,10,5"/>
+
+            <TabControl ItemsSource="{Binding OpenFiles}" SelectedItem="{Binding SelectedFile}">
+                <TabControl.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <CheckBox IsChecked="{Binding IsVisible}" 
-                                      Content="{Binding PlotViewModel.Channel.Name}"
-                                      VerticalAlignment="Center"/>
-                            <ComboBox Width="60" Margin="8,0,0,0"
-                                      SelectedItem="{Binding SelectedColor}" VerticalAlignment="Center"
-                                      ItemsSource="{x:Static vm:ChannelVisibilityItem.ColorPalette}"
-                                      ItemTemplate="{StaticResource ColorSwatchTemplate}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding FileName}" VerticalAlignment="Center"/>
+                            <Button Content="✕" 
+                                    Command="{Binding DataContext.CloseFileCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding}"
+                                    Background="Transparent" BorderThickness="0" Padding="2,0"
+                                    Cursor="Hand"/>
                         </StackPanel>
                     </DataTemplate>
-                </ComboBox.ItemTemplate>
-                <ComboBox.ItemContainerStyle>
-                    <Style TargetType="ComboBoxItem">
-                        <Setter Property="Padding" Value="2"/>
-                    </Style>
-                </ComboBox.ItemContainerStyle>
-                <ComboBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <VirtualizingStackPanel/>
-                    </ItemsPanelTemplate>
-                </ComboBox.ItemsPanel>
-                <ComboBox.Template>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <ToggleButton x:Name="ToggleButton" 
-                                          Grid.ColumnSpan="2" 
-                                          Focusable="False"
-                                          ClickMode="Press"
-                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                          Background="White" BorderBrush="Gray" BorderThickness="1">
-                                <ContentPresenter Margin="5,2">
-                                    <ContentPresenter.Content>
-                                        <TextBlock Text="Выберите каналы..." VerticalAlignment="Center"/>
-                                    </ContentPresenter.Content>
-                                </ContentPresenter>
-                            </ToggleButton>
-                            <Popup x:Name="Popup" 
-                                   Placement="Bottom" 
-                                   IsOpen="{TemplateBinding IsDropDownOpen}"
-                                   AllowsTransparency="True" 
-                                   Focusable="False"
-                                   PopupAnimation="Slide">
-                                <Border BorderThickness="1" BorderBrush="Gray" Background="White" Padding="5">
-                                    <StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                            <Button Content="Выбрать все" 
-                                                    Command="{Binding DataContext.SelectAllCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                    Padding="8,3" Margin="0,0,5,0"/>
-                                            <Button Content="Снять все" 
-                                                    Command="{Binding DataContext.DeselectAllCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                    Padding="8,3"/>
-                                        </StackPanel>
-                                        <ListBox ItemsSource="{Binding DataContext.AllChannels, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                 BorderThickness="0"
-                                                 MaxHeight="300">
-                                            <ListBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <StackPanel Orientation="Horizontal" Margin="2" VerticalAlignment="Center">
-                                                        <CheckBox IsChecked="{Binding IsVisible}" 
-                                                                  Content="{Binding PlotViewModel.Channel.Name}"
-                                                                  VerticalAlignment="Center"
-                                                                  Width="150"/>
-                                                        <ComboBox Width="60" Margin="8,0,0,0"
-                                                                  SelectedItem="{Binding SelectedColor}" VerticalAlignment="Center"
-                                                                  ItemsSource="{x:Static vm:ChannelVisibilityItem.ColorPalette}"
-                                                                  ItemTemplate="{StaticResource ColorSwatchTemplate}"/>
-                                                    </StackPanel>
-                                                </DataTemplate>
-                                            </ListBox.ItemTemplate>
-                                        </ListBox>
-                                    </StackPanel>
-                                </Border>
-                            </Popup>
-                        </Grid>
-                    </ControlTemplate>
-                </ComboBox.Template>
-            </ComboBox>
-
-            <Button Content="Сбросить масштаб" Command="{Binding ResetZoomCommand}" Padding="10,5" Margin="10,0"/>
-            <Button Content="Сброс диапазона" Command="{Binding ClearRangeCommand}" Padding="10,5" Margin="10,0"/>
-            
-            <TextBlock Text="{Binding StatusText}" Margin="20,0,0,0" 
-                       VerticalAlignment="Center" Foreground="DarkGreen" FontWeight="SemiBold"/>
-            <TextBlock Text="{Binding FileInfo}" Margin="20,0,0,0" VerticalAlignment="Center"/>
-        </StackPanel>
-
-        <ScrollBar DockPanel.Dock="Bottom" 
-                   Orientation="Horizontal"
-                   Minimum="{Binding ScrollMinimum}"
-                   Maximum="{Binding ScrollMaximum}"
-                   Value="{Binding ScrollValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                   ViewportSize="{Binding ViewportSize}"
-                   SmallChange="0.01"
-                   LargeChange="{Binding ViewportSize}"
-                   Margin="10,0,10,5"/>
-
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <ItemsControl ItemsSource="{Binding FilteredChannelPlots}"
-                          VirtualizingStackPanel.IsVirtualizing="False">
-                <ItemsControl.ItemTemplate>
+                </TabControl.ItemTemplate>
+                <TabControl.ContentTemplate>
                     <DataTemplate>
-                        <views:ChannelPlotControl DataContext="{Binding}"/>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl ItemsSource="{Binding FilteredChannelPlots}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <views:ChannelPlotControl DataContext="{Binding}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+                </TabControl.ContentTemplate>
+            </TabControl>
         </DockPanel>
 
         <Border Background="#DDFFFFE0" BorderBrush="Black" BorderThickness="1" CornerRadius="4"
-            Padding="6" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"
+                Padding="6" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"
                 Visibility="{Binding HasRangeInfo, Converter={StaticResource BoolToVis}}">
             <TextBlock Text="{Binding RangeInfoText}" FontWeight="Bold" LineHeight="14"/>
         </Border>

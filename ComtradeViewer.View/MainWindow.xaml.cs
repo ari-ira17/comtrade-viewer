@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using Microsoft.Win32;
 using ComtradeViewer.ViewModel.ViewModels;
 
 namespace ComtradeViewer.View.Views
@@ -9,26 +8,22 @@ namespace ComtradeViewer.View.Views
         public MainWindow()
         {
             InitializeComponent();
-        }
 
-        private void OpenButton_Click(object sender, RoutedEventArgs e)
-        {
-            var dialog = new OpenFileDialog
+            var viewModel = new MainViewModel();
+
+            viewModel.OpenSettingsAction = () =>
             {
-                Filter = "COMTRADE Configuration (*.cfg)|*.cfg",
-                Title = "Выберите файл конфигурации COMTRADE"
+                var settingsDialog = new SettingsWindow(viewModel)
+                {
+                    Owner = this
+                };
+                if (settingsDialog.ShowDialog() == true)
+                {
+                    viewModel.ApplySettings();
+                }
             };
 
-            if (dialog.ShowDialog() == true)
-            {
-                string cfgPath = dialog.FileName;
-                string datPath = cfgPath.Replace(".cfg", ".dat");
-
-                if (DataContext is MainViewModel vm)
-                {
-                    vm.OpenFileCommand.Execute(new string[] { cfgPath, datPath });
-                }
-            }
+            this.DataContext = viewModel;
         }
     }
 }
