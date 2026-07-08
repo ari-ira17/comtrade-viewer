@@ -55,6 +55,15 @@ namespace ComtradeViewer.ViewModel.ViewModels
             set { _appSettings = value; OnPropertyChanged(); }
         }
 
+        public void MoveFile(int oldIndex, int newIndex)
+        {
+            if (oldIndex < 0 || oldIndex >= OpenFiles.Count ||
+                newIndex < 0 || newIndex >= OpenFiles.Count)
+                return;
+            OpenFiles.Move(oldIndex, newIndex);
+            SelectedFile = OpenFiles[newIndex];
+        }
+
         private ObservableCollection<SettingsChannelItem> _settingsChannels;
         public ObservableCollection<SettingsChannelItem> SettingsChannels
         {

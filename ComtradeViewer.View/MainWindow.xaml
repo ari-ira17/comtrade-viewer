@@ -92,6 +92,44 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style TargetType="TabItem">
+            <Setter Property="AllowDrop" Value="True"/>
+            <Setter Property="Background" Value="#F0F0F0"/>
+            <Setter Property="BorderBrush" Value="#C8C8C8"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="6,6,0,0"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="White"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#AAAAAA"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#E8E8E8"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#AAAAAA"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <EventSetter Event="PreviewMouseLeftButtonDown" Handler="TabItem_PreviewMouseLeftButtonDown"/>
+            <EventSetter Event="MouseMove" Handler="TabItem_MouseMove"/>
+            <EventSetter Event="Drop" Handler="TabItem_Drop"/>
+            <EventSetter Event="DragOver" Handler="TabItem_DragOver"/>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -164,7 +202,7 @@
                 Padding="12,8" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="20"
                 Visibility="{Binding HasRangeInfo, Converter={StaticResource BoolToVis}}">
             <Border.Effect>
-                <DropShadowEffect Color="#AAA" BlurRadius="6" ShadowDepth="1" Opacity="0.25"/>
+                <DropShadowEffect Color="#AAA" BlurRadius="5" ShadowDepth="1" Opacity="0.25"/>
             </Border.Effect>
             <TextBlock Text="{Binding RangeInfoText}" FontWeight="Bold" LineHeight="14" Foreground="#333"/>
         </Border>
