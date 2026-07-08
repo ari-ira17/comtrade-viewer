@@ -62,8 +62,8 @@
             </TabControl>
         </DockPanel>
 
-        <Border Background="#DDFFFFE0" BorderBrush="Black" BorderThickness="1" CornerRadius="4"
-                Padding="6" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"
+        <Border Background="#DDFFFFE0" BorderBrush="Black" BorderThickness="1" CornerRadius="3"
+                Padding="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="20"
                 Visibility="{Binding HasRangeInfo, Converter={StaticResource BoolToVis}}">
             <TextBlock Text="{Binding RangeInfoText}" FontWeight="Bold" LineHeight="14"/>
         </Border>
