@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
-using System.Windows.Media;  
+using System.Windows.Media;
 
 namespace ComtradeViewer.ViewModel.ViewModels
 {
@@ -13,17 +13,17 @@ namespace ComtradeViewer.ViewModel.ViewModels
 
         private static readonly string[] DefaultPalette = new[]
         {
-            "#1F77B4", 
-            "#FF7F0E", 
-            "#2CA02C", 
-            "#D62728", 
-            "#9467BD", 
-            "#8C564B", 
-            "#E377C2", 
-            "#17BECF", 
+            "#1F77B4",
+            "#FF7F0E",
+            "#2CA02C",
+            "#D62728",
+            "#9467BD",
+            "#8C564B",
+            "#E377C2",
+            "#17BECF",
         };
 
-        public static Color[] ColorPaletteColors { get; } = 
+        public static Color[] ColorPaletteColors { get; } =
             DefaultPalette.Select(hex => (Color)ColorConverter.ConvertFromString(hex)).ToArray();
 
         private static int _colorIndex = -1;

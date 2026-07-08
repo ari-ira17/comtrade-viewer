@@ -177,7 +177,7 @@ namespace ComtradeViewer.Model.Services
                     if (string.IsNullOrWhiteSpace(line)) continue;
                     string[] tokens = line.Split(ComtradeConstants.FieldSeparator);
 
-                    double timeMs = double.Parse(tokens[(int)DataFileFieldIndex.TimeMs].Trim(), CultureInfo.InvariantCulture) 
+                    double timeMs = double.Parse(tokens[(int)DataFileFieldIndex.TimeMs].Trim(), CultureInfo.InvariantCulture)
                         / ComtradeConstants.TimeConversionFactor;
 
                     // Обработка аналоговых каналов

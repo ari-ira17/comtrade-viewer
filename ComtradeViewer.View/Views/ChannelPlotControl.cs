@@ -273,7 +273,7 @@ namespace ComtradeViewer.View.Views
 
             var path = new Path
             {
-                Stroke = curveBrush,  
+                Stroke = curveBrush,
                 StrokeThickness = 1.5,
                 Data = geometry
             };

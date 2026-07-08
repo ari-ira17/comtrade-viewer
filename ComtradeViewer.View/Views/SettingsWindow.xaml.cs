@@ -14,7 +14,7 @@ namespace ComtradeViewer.View.Views
         public SettingsWindow(MainViewModel mainViewModel)
         {
             InitializeComponent();
-            this.DataContext = mainViewModel; 
+            this.DataContext = mainViewModel;
         }
 
         private void OkButton_Click(object sender, RoutedEventArgs e)

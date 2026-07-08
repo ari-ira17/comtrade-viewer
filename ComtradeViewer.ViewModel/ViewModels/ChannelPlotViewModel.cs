@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using ComtradeViewer.Model.Models;
-using ComtradeViewer.ViewModel.Models;  
+using ComtradeViewer.ViewModel.Models;
 
 namespace ComtradeViewer.ViewModel.ViewModels
 {

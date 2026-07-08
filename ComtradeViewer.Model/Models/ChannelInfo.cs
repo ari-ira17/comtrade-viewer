@@ -9,6 +9,6 @@ namespace ComtradeViewer.Model.Models
         public double FactorB { get; set; }
         public double MinValue { get; set; }
         public double MaxValue { get; set; }
-        public bool IsDigital { get; set; } 
+        public bool IsDigital { get; set; }
     }
 }
