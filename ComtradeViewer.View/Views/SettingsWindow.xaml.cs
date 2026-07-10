@@ -2,6 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using ComtradeViewer.ViewModel.Resources;
 using ComtradeViewer.ViewModel.ViewModels;
 
 namespace ComtradeViewer.View.Views
@@ -47,9 +48,9 @@ namespace ComtradeViewer.View.Views
             {
                 switch (fmt)
                 {
-                    case ComtradeViewer.ViewModel.Models.TimeFormat.MinutesSecondsMilliseconds: return "мм:сс.мс";
-                    case ComtradeViewer.ViewModel.Models.TimeFormat.SecondsMilliseconds: return "сс.мс";
-                    case ComtradeViewer.ViewModel.Models.TimeFormat.Milliseconds: return "мс";
+                    case ComtradeViewer.ViewModel.Models.TimeFormat.MinutesSecondsMilliseconds: return AppResources.Get("TimeFormatMinutesSecondsMilliseconds");
+                    case ComtradeViewer.ViewModel.Models.TimeFormat.SecondsMilliseconds: return AppResources.Get("TimeFormatSecondsMilliseconds");
+                    case ComtradeViewer.ViewModel.Models.TimeFormat.Milliseconds: return AppResources.Get("TimeFormatMilliseconds");
                 }
             }
             return value?.ToString();

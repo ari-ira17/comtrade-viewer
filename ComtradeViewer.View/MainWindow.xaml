@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:ComtradeViewer.ViewModel.ViewModels;assembly=ComtradeViewer.ViewModel"
         xmlns:views="clr-namespace:ComtradeViewer.View.Views"
-        Title="Comtrade Viewer" Height="800" Width="1200"
+        Title="{Binding MainWindowTitle}" Height="800" Width="1200"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <FontFamily x:Key="AppFont">Segoe UI</FontFamily>
@@ -143,13 +143,13 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Orientation="Horizontal">
-                        <Button Content="Открыть файл .cfg" Command="{Binding OpenFileCommand}"
+                        <Button Content="{Binding OpenCfgButtonText}" Command="{Binding OpenFileCommand}"
                                 Style="{StaticResource ToolbarButtonStyle}"/>
-                        <Button Content="Настройки" Command="{Binding OpenSettingsCommand}"
+                        <Button Content="{Binding SettingsButtonText}" Command="{Binding OpenSettingsCommand}"
                                 Style="{StaticResource ToolbarButtonStyle}"/>
-                        <Button Content="Сбросить масштаб" Command="{Binding ResetZoomCommand}"
+                        <Button Content="{Binding ResetZoomButtonText}" Command="{Binding ResetZoomCommand}"
                                 Style="{StaticResource ToolbarButtonStyle}"/>
-                        <Button Content="Сброс диапазона" Command="{Binding ClearRangeCommand}"
+                        <Button Content="{Binding ClearRangeButtonText}" Command="{Binding ClearRangeCommand}"
                                 Style="{StaticResource ToolbarButtonStyle}"/>
                     </StackPanel>
 

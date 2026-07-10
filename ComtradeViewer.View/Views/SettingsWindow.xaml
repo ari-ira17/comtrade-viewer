@@ -4,7 +4,7 @@
         xmlns:viewModels="clr-namespace:ComtradeViewer.ViewModel.Models;assembly=ComtradeViewer.ViewModel"
         xmlns:vm="clr-namespace:ComtradeViewer.ViewModel.ViewModels;assembly=ComtradeViewer.ViewModel"
         xmlns:local="clr-namespace:ComtradeViewer.View.Views"
-        Title="Настройки отображения" Width="400" Height="500"
+        Title="{Binding SettingsWindowTitleText}" Width="400" Height="500"
         WindowStartupLocation="CenterOwner" ResizeMode="CanResize">
     <Window.Resources>
         <ObjectDataProvider x:Key="TimeFormats" MethodName="GetValues"
@@ -60,7 +60,7 @@
 
         <StackPanel Grid.Row="0" Margin="0,0,0,15">
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <TextBlock Text="Формат времени:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBlock Text="{Binding TimeFormatLabelText}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <ComboBox Width="150" ItemsSource="{Binding Source={StaticResource TimeFormats}}"
                           SelectedItem="{Binding AppSettings.SelectedTimeFormat}">
                     <ComboBox.ItemTemplate>
@@ -92,9 +92,18 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
-            <Button Content="ОК" Width="80" IsDefault="True" Click="OkButton_Click"/>
-            <Button Content="Отмена" Width="80" IsCancel="True" Margin="10,0,0,0"/>
+        <StackPanel Grid.Row="2" Margin="0,15,0,0">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="{Binding LanguageLabelText}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <ComboBox Width="140" SelectedValue="{Binding AppSettings.SelectedLanguage, Mode=TwoWay}" SelectedValuePath="Tag">
+                    <ComboBoxItem Content="{Binding RussianOptionText}" Tag="{x:Static viewModels:AppLanguage.Russian}"/>
+                    <ComboBoxItem Content="{Binding EnglishOptionText}" Tag="{x:Static viewModels:AppLanguage.English}"/>
+                </ComboBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="{Binding OkButtonText}" Width="80" IsDefault="True" Click="OkButton_Click"/>
+                <Button Content="{Binding CancelButtonText}" Width="80" IsCancel="True" Margin="10,0,0,0"/>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Window>
