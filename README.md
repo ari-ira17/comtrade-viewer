@@ -45,29 +45,22 @@ comtrade-viewer/
 │       ├── ChannelVisibilityItem.cs       # Элемент видимости канала
 │       └── MainViewModel.cs               # Главная логика приложения
 │
-├── ComtradeViewer.View/                   # WPF-интерфейс приложения
-│   ├── App.xaml                           # Описание приложения
-│   ├── App.xaml.cs                        # Код запуска приложения
-│   ├── AssemblyInfo.cs                    # Сведения о сборке
-│   ├── ComtradeViewer.View.csproj         # Проект интерфейса
-│   ├── Converters/                        # Конвертеры для XAML
-│   │   ├── ColorConverter.cs              # Конвертация цвета
-│   │   ├── PointsToGeometryConverter.cs   # Построение геометрии графика
-│   │   └── StringToBrushConverter.cs      # Преобразование строки в кисть
-│   ├── MainWindow.xaml                    # Главное окно
-│   ├── MainWindow.xaml.cs                 # Код главного окна
-│   └── Views/                             # Пользовательские представления
-│       ├── ChannelPlotControl.cs          # Контрол графика канала
-│       ├── SettingsWindow.xaml            # Окно настроек
-│       └── SettingsWindow.xaml.cs         # Код окна настроек
-│
-├── ComtradeViewer.TestConsole/            # Консольное приложение для ручной проверки
-│   ├── ComtradeViewer.TestConsole.csproj  # Проект консольного тестирования
-│   └── TestConsole.cs                     # Точка входа консоли
-│
-└── ComtradeViewer.Tests/                  # Автотесты проекта
-    ├── ModelTests.cs                      # Тесты модели
-    └── ViewModelTests.cs                  # Тесты ViewModel
+└── ComtradeViewer.View/                   # WPF-интерфейс приложения
+    ├── App.xaml                           # Описание приложения
+    ├── App.xaml.cs                        # Код запуска приложения
+    ├── AssemblyInfo.cs                    # Сведения о сборке
+    ├── ComtradeViewer.View.csproj         # Проект интерфейса
+    ├── Converters/                        # Конвертеры для XAML
+    │   ├── ColorConverter.cs              # Конвертация цвета
+    │   ├── PointsToGeometryConverter.cs   # Построение геометрии графика
+    │   └── StringToBrushConverter.cs      # Преобразование строки в кисть
+    ├── MainWindow.xaml                    # Главное окно
+    ├── MainWindow.xaml.cs                 # Код главного окна
+    └── Views/                             # Пользовательские представления
+        ├── ChannelPlotControl.cs          # Контрол графика канала
+        ├── SettingsWindow.xaml            # Окно настроек
+        └── SettingsWindow.xaml.cs         # Код окна настроек
+
 ```
 
 ---
