@@ -32,7 +32,7 @@ comtrade-viewer/
 │   ├── Models/                            # Модели настроек и файлов
 │   │   ├── AppSettings.cs                 # Настройки приложения
 │   │   ├── ComtradeFile.cs                # Представление открытого файла
-│   │   └── SettingsChannelItem.cs         # Наыстройка канала
+│   │   └── SettingsChannelItem.cs         # Настройка канала
 │   ├── RelayCommand.cs                    # Реализация команды
 │   ├── Resources/                         # Локализация и строки интерфейса
 │   ├── Services/                          # Сервисы работы с настройками
@@ -55,7 +55,7 @@ comtrade-viewer/
     ├── MainWindow.xaml                    # Главное окно
     ├── MainWindow.xaml.cs                 # Код главного окна
     └── Views/                             # Пользовательские представления
-        ├── ChannelPlotControl.cs          # Контрол графика канала
+        ├── ChannelPlotControl.cs          # Контроль графика канала
         ├── SettingsWindow.xaml            # Окно настроек
         └── SettingsWindow.xaml.cs         # Код окна настроек
 
