@@ -1,40 +1,67 @@
 # Проект ComtradeViewer (WPF)
 
-Решение (Solution) разделено на 3 независимых проекта согласно паттерну MVVM (Model-View-ViewModel). 
+ComtradeViewer — приложение для просмотра и анализа файлов COMTRADE с WPF-интерфейсом и MVVM-архитектурой.  
+Решение содержит три основных проекта: Model, ViewModel и View, а также дополнительные проекты для ручной проверки и тестов.
+
 Целевая платформа: .NET Framework 4.0.
 
 ---
 ```text
-ComtradeViewer/
+comtrade-viewer/
 │
-├── .gitignore                      # Исключает временные файлы Visual Studio и VS Code
-├── .github/
-│   └── workflows/
-│       └── ci.yml                  # Конфигурация GitHub Actions
-├── README.md                       # Документация проекта
-├── ComtradeViewer.slnx             # Общий файл решения
+├── .editorconfig                          # Правила форматирования кода
+├── .gitignore                             # Исключения для Git
+├── README.md                              # Описание проекта
+├── ComtradeViewer.slnx                    # Решение проекта
 │
-├── ComtradeViewer.Model/           # Слой парсинга и бизнес-логики (Class Library, net40)
-│   ├── ComtradeViewer.Model.csproj 
-│   ├── Models/
-│   │   ├── ChannelInfo.cs          # Описание канала (название, фаза, коэффициенты из .cfg)
-│   │   └── SamplePoint.cs          # Точка осциллограммы (Время, Значение)
-│   └── Services/
-│       ├── ComtradeParser.cs       # Парсер: чтение текстового .cfg и бинарного .dat
-│       └── DataDownsampler.cs      # Алгоритм прореживания (Min-Max)
+├── ComtradeViewer.Model/                  # Бизнес-логика и парсинг COMTRADE
+│   ├── ComtradeViewer.Model.csproj        # Проект модели
+│   ├── Models/                            # Модели данных каналов и точек
+│   │   ├── ChannelInfo.cs                 # Описание канала
+│   │   └── SamplePoint.cs                 # Точка выборки сигнала
+│   └── Services/                          # Сервисы парсинга и обработки данных
+│       ├── ComtradeParser.cs              # Парсер COMTRADE-файлов
+│       ├── ComtradeParseResult.cs         # Результат разбора файла
+│       ├── DataDownsampler.cs             # Снижение количества точек
+│       └── IComtradeParser.cs             # Интерфейс парсера
 │
-├── ComtradeViewer.ViewModel/       # Слой логики управления (Class Library, net40)
-│   ├── ComtradeViewer.ViewModel.csproj 
-│   ├── RelayCommand.cs             # Реализация ICommand для привязки кнопок
-│   ├── ViewModelBase.cs            # Базовый класс с реализацией INotifyPropertyChanged
-│   └── ViewModels/
-│       └── MainViewModel.cs        # Обрабатывает команды кнопок и готовит данные для графиков
+├── ComtradeViewer.ViewModel/              # ViewModel, команды, настройки и ресурсы
+│   ├── ComtradeViewer.ViewModel.csproj    # Проект ViewModel
+│   ├── Converters/                        # Конвертеры значений
+│   ├── Models/                            # Модели настроек и файлов
+│   │   ├── AppSettings.cs                 # Настройки приложения
+│   │   ├── ComtradeFile.cs                # Представление открытого файла
+│   │   └── SettingsChannelItem.cs         # Настройка канала
+│   ├── RelayCommand.cs                    # Реализация команды
+│   ├── Resources/                         # Локализация и строки интерфейса
+│   ├── Services/                          # Сервисы работы с настройками
+│   │   └── SettingsService.cs             # Загрузка/сохранение настроек
+│   ├── ViewModelBase.cs                   # Базовый класс ViewModel
+│   └── ViewModels/                        # Основные ViewModel
+│       ├── ChannelPlotViewModel.cs        # Модель графика канала
+│       ├── ChannelVisibilityItem.cs       # Элемент видимости канала
+│       └── MainViewModel.cs               # Главная логика приложения
 │
-└── ComtradeViewer.View/            # Графический интерфейс (WPF Application, net40)
-    ├── ComtradeViewer.View.csproj  
-    ├── App.xaml                    
-    ├── App.xaml.cs                 
-    └── Views/
-        ├── MainWindow.xaml         # Разметка главного окна на XAML (кнопки, графики)
-        └── MainWindow.xaml.cs
+└── ComtradeViewer.View/                   # WPF-интерфейс приложения
+    ├── App.xaml                           # Описание приложения
+    ├── App.xaml.cs                        # Код запуска приложения
+    ├── AssemblyInfo.cs                    # Сведения о сборке
+    ├── ComtradeViewer.View.csproj         # Проект интерфейса
+    ├── Converters/                        # Конвертеры для XAML
+    │   ├── ColorConverter.cs              # Конвертация цвета
+    │   ├── PointsToGeometryConverter.cs   # Построение геометрии графика
+    │   └── StringToBrushConverter.cs      # Преобразование строки в кисть
+    ├── MainWindow.xaml                    # Главное окно
+    ├── MainWindow.xaml.cs                 # Код главного окна
+    └── Views/                             # Пользовательские представления
+        ├── ChannelPlotControl.cs          # Контрол графика канала
+        ├── SettingsWindow.xaml            # Окно настроек
+        └── SettingsWindow.xaml.cs         # Код окна настроек
+
+```
+
+---
+Запуск приложения:
+```bash
+dotnet run --project ComtradeViewer.View/ComtradeViewer.View.csproj
 ```

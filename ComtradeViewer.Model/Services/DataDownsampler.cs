@@ -6,23 +6,35 @@ namespace ComtradeViewer.Model.Services
 {
     public class DataDownsampler
     {
+        private const int MinimumBucketSize = 1;
+        private const int PointsPerBucket = 2;
+
         public static List<SamplePoint> MinMax(List<SamplePoint> source, int targetPointsCount)
         {
-            if (source.Count <= targetPointsCount) return source;
+            if (source == null || source.Count == 0)
+                return new List<SamplePoint>();
 
-            var result = new List<SamplePoint>();
-            int bucketSize = source.Count / (targetPointsCount / 2);
+            if (source.Count <= targetPointsCount)
+                return new List<SamplePoint>(source);
 
-            for (int i = 0; i < source.Count; i += bucketSize)
+            int bucketCount = Math.Max(MinimumBucketSize, targetPointsCount / PointsPerBucket);
+            int bucketSize = Math.Max(MinimumBucketSize, (source.Count + bucketCount - 1) / bucketCount);
+            var result = new List<SamplePoint>(targetPointsCount * PointsPerBucket);
+
+            for (int start = 0; start < source.Count; start += bucketSize)
             {
-                int end = Math.Min(i + bucketSize, source.Count);
-                SamplePoint min = source[i];
-                SamplePoint max = source[i];
+                int end = Math.Min(start + bucketSize, source.Count);
+                if (end <= start)
+                    continue;
 
-                for (int j = i + 1; j < end; j++)
+                SamplePoint min = source[start];
+                SamplePoint max = source[start];
+
+                for (int index = start + 1; index < end; index++)
                 {
-                    if (source[j].Value < min.Value) min = source[j];
-                    if (source[j].Value > max.Value) max = source[j];
+                    var point = source[index];
+                    if (point.Value < min.Value) min = point;
+                    if (point.Value > max.Value) max = point;
                 }
 
                 if (min.Time < max.Time)
@@ -36,6 +48,7 @@ namespace ComtradeViewer.Model.Services
                     result.Add(min);
                 }
             }
+
             return result;
         }
     }

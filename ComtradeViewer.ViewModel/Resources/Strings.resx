@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="MainWindowTitle" xml:space="preserve">
+    <value>Comtrade Viewer</value>
+  </data>
+  <data name="OpenCfgButton" xml:space="preserve">
+    <value>Open .cfg file</value>
+  </data>
+  <data name="OpenFileFilter" xml:space="preserve">
+    <value>COMTRADE CFG files (*.cfg)|*.cfg|All files (*.*)|*.*</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="WarningTitle" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="SettingsButton" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="ResetZoomButton" xml:space="preserve">
+    <value>Reset zoom</value>
+  </data>
+  <data name="ClearRangeButton" xml:space="preserve">
+    <value>Clear range</value>
+  </data>
+  <data name="SettingsWindowTitle" xml:space="preserve">
+    <value>Display settings</value>
+  </data>
+  <data name="TimeFormatLabel" xml:space="preserve">
+    <value>Time format:</value>
+  </data>
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="OkButton" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="CancelButton" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="RussianOption" xml:space="preserve">
+    <value>Russian</value>
+  </data>
+  <data name="EnglishOption" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="WaitingForFile" xml:space="preserve">
+    <value>Waiting for file...</value>
+  </data>
+  <data name="FileNotLoaded" xml:space="preserve">
+    <value>File not loaded</value>
+  </data>
+  <data name="RangeInfoFormat" xml:space="preserve">
+    <value>L: {0:F3} s\nR: {1:F3} s\nΔ = {2:F3} ms</value>
+  </data>
+  <data name="MissingDatFile" xml:space="preserve">
+    <value>DAT file not found for {0}</value>
+  </data>
+  <data name="LoadingStatus" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="LoadedChannelsStatus" xml:space="preserve">
+    <value>Loaded {0} channels</value>
+  </data>
+  <data name="FileInfoFormat" xml:space="preserve">
+    <value>File: {0}, channels: {1}</value>
+  </data>
+  <data name="LoadError" xml:space="preserve">
+    <value>Error loading {0}: {1}</value>
+  </data>
+  <data name="TimeFormatMinutesSecondsMilliseconds" xml:space="preserve">
+    <value>mm:ss.mmm.µs</value>
+  </data>
+  <data name="TimeFormatSecondsMilliseconds" xml:space="preserve">
+    <value>ss.mmm.µs</value>
+  </data>
+  <data name="TimeFormatMilliseconds" xml:space="preserve">
+    <value>ms.µs</value>
+  </data>
+  <data name="TimeFormatMicroseconds" xml:space="preserve">
+    <value>µs</value>
+  </data>
+  <data name="UnitLabel" xml:space="preserve">
+    <value>Unit: {0}</value>
+  </data>
+  <data name="MinLabel" xml:space="preserve">
+    <value>Min: {0}</value>
+  </data>
+  <data name="MaxLabel" xml:space="preserve">
+    <value>Max: {0}</value>
+  </data>
+  <data name="ZeroLabel" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="HoverTooltipFormat" xml:space="preserve">
+    <value>t={0}
+val={1:F6}</value>
+  </data>
+  <data name="RangeMarkerLeft" xml:space="preserve">
+    <value>L</value>
+  </data>
+  <data name="RangeMarkerRight" xml:space="preserve">
+    <value>R</value>
+  </data>
+</root>
