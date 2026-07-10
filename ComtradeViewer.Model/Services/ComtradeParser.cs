@@ -67,8 +67,8 @@ namespace ComtradeViewer.Model.Services
         /// <summary>Суффикс для количества цифровых каналов в строке конфигурации</summary>
         public const string DigitalChannelCountSuffix = "D";
 
-        /// <summary>Коэффициент для преобразования микросекунд в миллисекунды</summary>
-        public const double TimeConversionFactor = 1000.0;
+        /// <summary>Коэффициент для преобразования микросекунд в секунды</summary>
+        public const double TimeConversionFactor = 1_000_000.0;
 
         /// <summary>Значение FactorA по умолчанию для цифровых каналов</summary>
         public const double DefaultDigitalFactorA = 1.0;
@@ -177,7 +177,8 @@ namespace ComtradeViewer.Model.Services
                     if (string.IsNullOrWhiteSpace(line)) continue;
                     string[] tokens = line.Split(ComtradeConstants.FieldSeparator);
 
-                    double timeMs = double.Parse(tokens[(int)DataFileFieldIndex.TimeMs].Trim(), CultureInfo.InvariantCulture)
+                    // Переводим микросекунды в секунды
+                    double timeSec = double.Parse(tokens[(int)DataFileFieldIndex.TimeMs].Trim(), CultureInfo.InvariantCulture)
                         / ComtradeConstants.TimeConversionFactor;
 
                     // Обработка аналоговых каналов
@@ -186,7 +187,7 @@ namespace ComtradeViewer.Model.Services
                         double rawValue = double.Parse(tokens[(int)DataFileFieldIndex.AnalogDataStart + i].Trim(), CultureInfo.InvariantCulture);
                         double physicalValue = rawValue * analogChannels[i].FactorA + analogChannels[i].FactorB;
                         string channelName = analogChannels[i].Name;
-                        result[channelName].Add(new SamplePoint(timeMs, physicalValue));
+                        result[channelName].Add(new SamplePoint(timeSec, physicalValue));
                     }
 
                     // Обработка цифровых каналов
@@ -196,7 +197,7 @@ namespace ComtradeViewer.Model.Services
                         string token = tokens[digitalStartIndex + i].Trim();
                         double value = double.Parse(token, CultureInfo.InvariantCulture);
                         string channelName = digitalChannels[i].Name;
-                        result[channelName].Add(new SamplePoint(timeMs, value));
+                        result[channelName].Add(new SamplePoint(timeSec, value));
                     }
                 }
             }
