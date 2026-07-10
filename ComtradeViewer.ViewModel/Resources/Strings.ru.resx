@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="MainWindowTitle" xml:space="preserve">
+    <value>Comtrade Viewer</value>
+  </data>
+  <data name="OpenCfgButton" xml:space="preserve">
+    <value>Открыть файл .cfg</value>
+  </data>
+  <data name="OpenFileFilter" xml:space="preserve">
+    <value>COMTRADE CFG files (*.cfg)|*.cfg|Все файлы (*.*)|*.*</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Ошибка</value>
+  </data>
+  <data name="WarningTitle" xml:space="preserve">
+    <value>Предупреждение</value>
+  </data>
+  <data name="SettingsButton" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
+  <data name="ResetZoomButton" xml:space="preserve">
+    <value>Сбросить масштаб</value>
+  </data>
+  <data name="ClearRangeButton" xml:space="preserve">
+    <value>Сброс диапазона</value>
+  </data>
+  <data name="SettingsWindowTitle" xml:space="preserve">
+    <value>Настройки отображения</value>
+  </data>
+  <data name="TimeFormatLabel" xml:space="preserve">
+    <value>Формат времени:</value>
+  </data>
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>Язык:</value>
+  </data>
+  <data name="OkButton" xml:space="preserve">
+    <value>ОК</value>
+  </data>
+  <data name="CancelButton" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
+  <data name="RussianOption" xml:space="preserve">
+    <value>Русский</value>
+  </data>
+  <data name="EnglishOption" xml:space="preserve">
+    <value>Английский</value>
+  </data>
+  <data name="WaitingForFile" xml:space="preserve">
+    <value>Ожидание файла...</value>
+  </data>
+  <data name="FileNotLoaded" xml:space="preserve">
+    <value>Файл не загружен</value>
+  </data>
+  <data name="RangeInfoFormat" xml:space="preserve">
+    <value>L: {0:F3} с\nR: {1:F3} с\nΔ = {2:F3} мс</value>
+  </data>
+  <data name="MissingDatFile" xml:space="preserve">
+    <value>Не найден DAT-файл для {0}</value>
+  </data>
+  <data name="LoadingStatus" xml:space="preserve">
+    <value>Загрузка...</value>
+  </data>
+  <data name="LoadedChannelsStatus" xml:space="preserve">
+    <value>Загружено {0} каналов</value>
+  </data>
+  <data name="FileInfoFormat" xml:space="preserve">
+    <value>Файл: {0}, каналов: {1}</value>
+  </data>
+  <data name="LoadError" xml:space="preserve">
+    <value>Ошибка загрузки {0}: {1}</value>
+  </data>
+  <data name="TimeFormatMinutesSecondsMilliseconds" xml:space="preserve">
+    <value>мм:сс.мс</value>
+  </data>
+  <data name="TimeFormatSecondsMilliseconds" xml:space="preserve">
+    <value>сс.мс</value>
+  </data>
+  <data name="TimeFormatMilliseconds" xml:space="preserve">
+    <value>мс</value>
+  </data>
+  <data name="UnitLabel" xml:space="preserve">
+    <value>Ед. изм.: {0}</value>
+  </data>
+  <data name="MinLabel" xml:space="preserve">
+    <value>Мин.: {0}</value>
+  </data>
+  <data name="MaxLabel" xml:space="preserve">
+    <value>Макс.: {0}</value>
+  </data>
+  <data name="ZeroLabel" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="HoverTooltipFormat" xml:space="preserve">
+    <value>t={0:F6} с
+val={1:F6}</value>
+  </data>
+  <data name="RangeMarkerLeft" xml:space="preserve">
+    <value>L</value>
+  </data>
+  <data name="RangeMarkerRight" xml:space="preserve">
+    <value>R</value>
+  </data>
+</root>
