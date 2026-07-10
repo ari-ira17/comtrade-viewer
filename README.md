@@ -27,11 +27,12 @@ comtrade-viewer/
 │
 ├── ComtradeViewer.ViewModel/              # ViewModel, команды, настройки и ресурсы
 │   ├── ComtradeViewer.ViewModel.csproj    # Проект ViewModel
-│   ├── Converters/                        # Конвертеры значений
+│   ├── Converters/                        # Конвертеры
+│   │   └── MediaColorConverter.cs         # Конвертация цвета
 │   ├── Models/                            # Модели настроек и файлов
 │   │   ├── AppSettings.cs                 # Настройки приложения
 │   │   ├── ComtradeFile.cs                # Представление открытого файла
-│   │   └── SettingsChannelItem.cs         # Настройка канала
+│   │   └── SettingsChannelItem.cs         # Наыстройка канала
 │   ├── RelayCommand.cs                    # Реализация команды
 │   ├── Resources/                         # Локализация и строки интерфейса
 │   ├── Services/                          # Сервисы работы с настройками
