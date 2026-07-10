@@ -10,6 +10,7 @@ using System.Windows.Shapes;
 using ComtradeViewer.Model.Models;
 using ComtradeViewer.Model.Services;
 using ComtradeViewer.ViewModel.Models;
+using ComtradeViewer.ViewModel.Resources;
 using ComtradeViewer.ViewModel.ViewModels;
 
 namespace ComtradeViewer.View.Views
@@ -64,15 +65,15 @@ namespace ComtradeViewer.View.Views
             infoStack.Children.Add(nameBlock);
 
             var unitBlock = new TextBlock { FontSize = 14 };
-            unitBlock.SetBinding(TextBlock.TextProperty, new Binding("Channel.Unit") { StringFormat = "Ед. изм.: {0}" });
+            unitBlock.SetBinding(TextBlock.TextProperty, new Binding("Channel.Unit") { StringFormat = AppResources.Get("UnitLabel") });
             infoStack.Children.Add(unitBlock);
 
             var minBlock = new TextBlock { FontSize = 14 };
-            minBlock.SetBinding(TextBlock.TextProperty, new Binding("Channel.MinValue") { StringFormat = "Мин.: {0}" });
+            minBlock.SetBinding(TextBlock.TextProperty, new Binding("Channel.MinValue") { StringFormat = AppResources.Get("MinLabel") });
             infoStack.Children.Add(minBlock);
 
             var maxBlock = new TextBlock { FontSize = 14 };
-            maxBlock.SetBinding(TextBlock.TextProperty, new Binding("Channel.MaxValue") { StringFormat = "Макс.: {0}" });
+            maxBlock.SetBinding(TextBlock.TextProperty, new Binding("Channel.MaxValue") { StringFormat = AppResources.Get("MaxLabel") });
             infoStack.Children.Add(maxBlock);
 
             infoBorder.Child = infoStack;
@@ -381,7 +382,7 @@ namespace ComtradeViewer.View.Views
 
             var zeroLabel = new TextBlock
             {
-                Text = "0",
+                Text = AppResources.Get("ZeroLabel"),
                 FontSize = 12,
                 Foreground = Brushes.Black,
                 FontWeight = FontWeights.Bold
@@ -435,10 +436,13 @@ namespace ComtradeViewer.View.Views
                     Padding = new Thickness(6),
                     BorderBrush = Brushes.Gray,
                     BorderThickness = new Thickness(1),
+                    MaxWidth = 220,
                     Child = new TextBlock
                     {
-                        Text = $"t={sp.Time:F6} с\nval={sp.Value:F6}",
-                        FontSize = 14
+                        Text = string.Format(AppResources.Get("HoverTooltipFormat"), sp.Time, sp.Value),
+                        FontSize = 14,
+                        TextWrapping = TextWrapping.Wrap,
+                        MaxWidth = 220
                     }
                 };
                 Canvas.SetLeft(tooltip, selX + 5);
@@ -537,10 +541,13 @@ namespace ComtradeViewer.View.Views
                             Padding = new Thickness(6),
                             BorderBrush = Brushes.Gray,
                             BorderThickness = new Thickness(1),
+                            MaxWidth = 220,
                             Child = new TextBlock
                             {
-                                Text = $"t={closest.Time:F6} с\nval={closest.Value:F6}",
-                                FontSize = 14
+                                Text = string.Format(AppResources.Get("HoverTooltipFormat"), closest.Time, closest.Value),
+                                FontSize = 14,
+                                TextWrapping = TextWrapping.Wrap,
+                                MaxWidth = 220
                             }
                         };
                         double tooltipX = x + 10;
@@ -580,7 +587,7 @@ namespace ComtradeViewer.View.Views
 
                     var label = new TextBlock
                     {
-                        Text = "L",
+                        Text = AppResources.Get("RangeMarkerLeft"),
                         FontSize = 10,
                         Foreground = rangeBrush,
                         FontWeight = FontWeights.Bold
@@ -611,7 +618,7 @@ namespace ComtradeViewer.View.Views
 
                     var label = new TextBlock
                     {
-                        Text = "R",
+                        Text = AppResources.Get("RangeMarkerRight"),
                         FontSize = 10,
                         Foreground = rangeBrush,
                         FontWeight = FontWeights.Bold

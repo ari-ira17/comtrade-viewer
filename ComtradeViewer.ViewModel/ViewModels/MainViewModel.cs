@@ -1,31 +1,45 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
-using System.Windows.Input;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using ComtradeViewer.Model.Models;
 using ComtradeViewer.Model.Services;
 using ComtradeViewer.ViewModel.Models;
+using ComtradeViewer.ViewModel.Resources;
 using ComtradeViewer.ViewModel.Services;
 
 namespace ComtradeViewer.ViewModel.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
+        #region Fields
+
+        private const double MaximumTimeRangeTolerance = 0.1;
         private readonly IComtradeParser _parser;
         private AppSettings _appSettings;
-
         private ObservableCollection<ComtradeFile> _openFiles;
+        private ComtradeFile _selectedFile;
+        private ObservableCollection<SettingsChannelItem> _settingsChannels;
+        private double? _rangeLeft;
+        private double? _rangeRight;
+        private double? _hoverTime;
+
+        #endregion
+
+        #region Properties
+
         public ObservableCollection<ComtradeFile> OpenFiles
         {
             get => _openFiles;
             set { _openFiles = value; OnPropertyChanged(); }
         }
 
-        private ComtradeFile _selectedFile;
         public ComtradeFile SelectedFile
         {
             get => _selectedFile;
@@ -52,19 +66,20 @@ namespace ComtradeViewer.ViewModel.ViewModels
         public AppSettings AppSettings
         {
             get => _appSettings;
-            set { _appSettings = value; OnPropertyChanged(); }
+            set
+            {
+                if (_appSettings != null)
+                    _appSettings.PropertyChanged -= AppSettings_PropertyChanged;
+
+                _appSettings = value;
+                if (_appSettings != null)
+                    _appSettings.PropertyChanged += AppSettings_PropertyChanged;
+
+                OnPropertyChanged();
+                ApplyCurrentLanguage();
+            }
         }
 
-        public void MoveFile(int oldIndex, int newIndex)
-        {
-            if (oldIndex < 0 || oldIndex >= OpenFiles.Count ||
-                newIndex < 0 || newIndex >= OpenFiles.Count)
-                return;
-            OpenFiles.Move(oldIndex, newIndex);
-            SelectedFile = OpenFiles[newIndex];
-        }
-
-        private ObservableCollection<SettingsChannelItem> _settingsChannels;
         public ObservableCollection<SettingsChannelItem> SettingsChannels
         {
             get => _settingsChannels;
@@ -102,7 +117,7 @@ namespace ComtradeViewer.ViewModel.ViewModels
 
         public string StatusText
         {
-            get => _selectedFile?.StatusText ?? "Ожидание файла...";
+            get => _selectedFile?.StatusText ?? AppResources.Get("WaitingForFile");
             set
             {
                 if (_selectedFile != null)
@@ -115,7 +130,7 @@ namespace ComtradeViewer.ViewModel.ViewModels
 
         public string FileInfo
         {
-            get => _selectedFile?.FileInfo ?? "Файл не загружен";
+            get => _selectedFile?.FileInfo ?? AppResources.Get("FileNotLoaded");
             set
             {
                 if (_selectedFile != null)
@@ -171,11 +186,14 @@ namespace ComtradeViewer.ViewModel.ViewModels
         }
 
         public double ScrollMinimum => 0;
+
         public double ScrollMaximum
         {
             get
             {
-                if (_selectedFile?.AllChannels == null || !_selectedFile.AllChannels.Any()) return 1;
+                if (_selectedFile?.AllChannels == null || !_selectedFile.AllChannels.Any())
+                    return 1;
+
                 return _selectedFile.AllChannels.SelectMany(c => c.PlotViewModel.Points).Max(p => p.Time);
             }
         }
@@ -185,11 +203,14 @@ namespace ComtradeViewer.ViewModel.ViewModels
             get => TimeMin;
             set
             {
-                if (_selectedFile == null) return;
+                if (_selectedFile == null)
+                    return;
+
                 double range = TimeMax - TimeMin;
                 double newMin = Math.Max(ScrollMinimum, Math.Min(value, ScrollMaximum - range));
                 if (newMin + range > ScrollMaximum)
                     newMin = ScrollMaximum - range;
+
                 if (Math.Abs(TimeMin - newMin) > 0.000001)
                 {
                     TimeMin = newMin;
@@ -200,9 +221,6 @@ namespace ComtradeViewer.ViewModel.ViewModels
         }
 
         public double ViewportSize => TimeMax - TimeMin;
-
-        private double? _rangeLeft;
-        private double? _rangeRight;
 
         public double? RangeLeft
         {
@@ -219,6 +237,7 @@ namespace ComtradeViewer.ViewModel.ViewModels
                 }
             }
         }
+
         public bool RangeLeftChanged { get; set; }
 
         public double? RangeRight
@@ -236,6 +255,7 @@ namespace ComtradeViewer.ViewModel.ViewModels
                 }
             }
         }
+
         public bool RangeRightChanged { get; set; }
 
         public string RangeInfoText
@@ -244,14 +264,14 @@ namespace ComtradeViewer.ViewModel.ViewModels
             {
                 if (!_rangeLeft.HasValue || !_rangeRight.HasValue)
                     return string.Empty;
+
                 double diffMs = (_rangeRight.Value - _rangeLeft.Value) * 1000.0;
-                return $"L: {_rangeLeft.Value:F3} с\nR: {_rangeRight.Value:F3} с\nΔ = {diffMs:F3} мс";
+                return string.Format(AppResources.Get("RangeInfoFormat"), _rangeLeft.Value, _rangeRight.Value, diffMs);
             }
         }
 
         public bool HasRangeInfo => _rangeLeft.HasValue && _rangeRight.HasValue;
 
-        private double? _hoverTime;
         public double? HoverTime
         {
             get => _hoverTime;
@@ -265,7 +285,21 @@ namespace ComtradeViewer.ViewModel.ViewModels
                 }
             }
         }
+
         public bool HoverTimeChanged { get; set; }
+
+        public string MainWindowTitle => AppResources.Get("MainWindowTitle");
+        public string OpenCfgButtonText => AppResources.Get("OpenCfgButton");
+        public string SettingsButtonText => AppResources.Get("SettingsButton");
+        public string ResetZoomButtonText => AppResources.Get("ResetZoomButton");
+        public string ClearRangeButtonText => AppResources.Get("ClearRangeButton");
+        public string SettingsWindowTitleText => AppResources.Get("SettingsWindowTitle");
+        public string TimeFormatLabelText => AppResources.Get("TimeFormatLabel");
+        public string LanguageLabelText => AppResources.Get("LanguageLabel");
+        public string OkButtonText => AppResources.Get("OkButton");
+        public string CancelButtonText => AppResources.Get("CancelButton");
+        public string RussianOptionText => AppResources.Get("RussianOption");
+        public string EnglishOptionText => AppResources.Get("EnglishOption");
 
         public ICommand OpenFileCommand { get; }
         public ICommand CloseFileCommand { get; }
@@ -277,12 +311,21 @@ namespace ComtradeViewer.ViewModel.ViewModels
 
         public Action OpenSettingsAction { get; set; }
 
-        public MainViewModel() : this(new ComtradeParser()) { }
+        #endregion
+
+        #region Constructors
+
+        public MainViewModel() : this(new ComtradeParser())
+        {
+        }
 
         public MainViewModel(IComtradeParser parser)
         {
             _parser = parser;
             AppSettings = SettingsService.Load();
+            if (AppSettings.SelectedLanguage == default(AppLanguage))
+                AppSettings.SelectedLanguage = AppLanguage.Russian;
+            AppResources.SetCulture(GetCultureInfo(AppSettings.SelectedLanguage));
 
             OpenFiles = new ObservableCollection<ComtradeFile>();
             SettingsChannels = new ObservableCollection<SettingsChannelItem>();
@@ -296,110 +339,25 @@ namespace ComtradeViewer.ViewModel.ViewModels
             ClearRangeCommand = new RelayCommand(ExecuteClearRange);
         }
 
-        private void ExecuteOpenFile(object parameter)
+        #endregion
+
+        #region Public API
+
+        public void MoveFile(int oldIndex, int newIndex)
         {
-            var dlg = new Microsoft.Win32.OpenFileDialog
-            {
-                Filter = "COMTRADE CFG files (*.cfg)|*.cfg|All files (*.*)|*.*",
-                Multiselect = true
-            };
-            if (dlg.ShowDialog() == true)
-            {
-                foreach (string cfgPath in dlg.FileNames)
-                {
-                    try
-                    {
-                        string datPath = System.IO.Path.ChangeExtension(cfgPath, ".dat");
-                        if (!System.IO.File.Exists(datPath))
-                        {
-                            MessageBox.Show($"Не найден DAT-файл для {cfgPath}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            continue;
-                        }
+            if (oldIndex < 0 || oldIndex >= OpenFiles.Count ||
+                newIndex < 0 || newIndex >= OpenFiles.Count)
+                return;
 
-                        var parseResult = _parser.Parse(cfgPath, datPath);
-                        var file = new ComtradeFile
-                        {
-                            FileName = System.IO.Path.GetFileName(cfgPath),
-                            FilePath = cfgPath,
-                            StatusText = "Загрузка...",
-                            FileInfo = ""
-                        };
-
-                        file.AllChannels = new ObservableCollection<ChannelVisibilityItem>();
-                        int channelIndex = 0;
-                        string[] palette = ChannelVisibilityItem.ColorPalette;
-
-                        foreach (var ch in parseResult.Channels)
-                        {
-                            if (parseResult.Data.TryGetValue(ch.Name, out var points))
-                            {
-                                var plotVm = new ChannelPlotViewModel(ch, points);
-
-                                Color savedColor = AppSettings.GetChannelColor(ch.Name);
-                                bool hasSavedColor = AppSettings.ChannelColors.Any(c => c.ChannelName == ch.Name && c.Color != Colors.Gray);
-
-                                if (hasSavedColor)
-                                {
-                                    plotVm.Color = savedColor.ToString();
-                                }
-                                else
-                                {
-                                    string defaultColorHex = palette[channelIndex % palette.Length];
-                                    plotVm.Color = defaultColorHex;
-                                }
-                                plotVm.TimeFormat = AppSettings.SelectedTimeFormat;
-
-                                var item = new ChannelVisibilityItem(plotVm)
-                                {
-                                    IsVisible = true
-                                };
-                                item.PropertyChanged += (s, e) =>
-                                {
-                                    if (e.PropertyName == nameof(ChannelVisibilityItem.IsVisible))
-                                        file.UpdateFilteredChannels();
-                                };
-                                file.AllChannels.Add(item);
-                                channelIndex++;
-                            }
-                        }
-
-                        var allPoints = file.AllChannels.SelectMany(c => c.PlotViewModel.Points);
-                        if (allPoints.Any())
-                        {
-                            file.TimeMin = allPoints.Min(p => p.Time);
-                            file.TimeMax = allPoints.Max(p => p.Time);
-                        }
-                        else
-                        {
-                            file.TimeMin = 0;
-                            file.TimeMax = 1;
-                        }
-
-                        file.UpdateFilteredChannels();
-                        file.StatusText = $"Загружено {file.AllChannels.Count} каналов";
-                        file.FileInfo = $"Файл: {file.FileName}, каналов: {file.AllChannels.Count}";
-
-                        OpenFiles.Add(file);
-                        SelectedFile = file;
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка загрузки {cfgPath}: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-            }
-        }
-
-        private void ExecuteCloseFile(object parameter)
-        {
-            if (parameter is ComtradeFile file)
-                OpenFiles.Remove(file);
+            OpenFiles.Move(oldIndex, newIndex);
+            SelectedFile = OpenFiles[newIndex];
         }
 
         public void RefreshSettingsChannels()
         {
             SettingsChannels.Clear();
-            if (SelectedFile?.AllChannels == null) return;
+            if (SelectedFile?.AllChannels == null)
+                return;
 
             foreach (var chItem in SelectedFile.AllChannels)
             {
@@ -421,35 +379,9 @@ namespace ComtradeViewer.ViewModel.ViewModels
                     SelectedColor = currentColor
                 };
 
-                settingsItem.PropertyChanged += (s, e) =>
-                {
-                    if (e.PropertyName == "IsVisible")
-                    {
-                        chItem.IsVisible = settingsItem.IsVisible;
-                    }
-                    if (e.PropertyName == "SelectedColor")
-                    {
-                        chItem.PlotViewModel.Color = settingsItem.SelectedColor.ToString();
-                        var entry = AppSettings.ChannelColors.FirstOrDefault(c => c.ChannelName == settingsItem.ChannelName);
-                        if (entry != null)
-                            entry.Color = settingsItem.SelectedColor;
-                        else
-                            AppSettings.ChannelColors.Add(new ChannelColorEntry
-                            {
-                                ChannelName = settingsItem.ChannelName,
-                                Color = settingsItem.SelectedColor
-                            });
-                    }
-                };
-
+                settingsItem.PropertyChanged += SettingsChannel_PropertyChanged;
                 SettingsChannels.Add(settingsItem);
             }
-        }
-
-        private void ExecuteOpenSettings(object parameter)
-        {
-            RefreshSettingsChannels();
-            OpenSettingsAction?.Invoke();
         }
 
         public void ApplySettings()
@@ -461,16 +393,18 @@ namespace ComtradeViewer.ViewModel.ViewModels
                     chItem.PlotViewModel.TimeFormat = AppSettings.SelectedTimeFormat;
                 }
             }
+
             SettingsService.Save(AppSettings);
+            ApplyCurrentLanguage();
             OnPropertyChanged(nameof(AllChannels));
             OnPropertyChanged(nameof(FilteredChannelPlots));
         }
 
-        private void ExecuteResetZoom(object parameter) { ResetZoom(); }
-
-        private void ResetZoom()
+        public void ResetZoom()
         {
-            if (_selectedFile?.AllChannels == null || !_selectedFile.AllChannels.Any()) return;
+            if (_selectedFile?.AllChannels == null || !_selectedFile.AllChannels.Any())
+                return;
+
             var allPoints = _selectedFile.AllChannels.SelectMany(c => c.PlotViewModel.Points);
             if (allPoints.Any())
             {
@@ -485,8 +419,15 @@ namespace ComtradeViewer.ViewModel.ViewModels
 
         public void SetTimeRange(double min, double max)
         {
-            if (_selectedFile == null) return;
-            if (min < max && min >= 0 && max <= _selectedFile.AllChannels.SelectMany(c => c.PlotViewModel.Points).Max(p => p.Time) + 0.1)
+            if (_selectedFile == null)
+                return;
+
+            var points = _selectedFile.AllChannels.SelectMany(c => c.PlotViewModel.Points);
+            if (!points.Any())
+                return;
+
+            double maxTime = points.Max(p => p.Time);
+            if (min < max && min >= 0 && max <= maxTime + MaximumTimeRangeTolerance)
             {
                 TimeMin = min;
                 TimeMax = max;
@@ -495,20 +436,254 @@ namespace ComtradeViewer.ViewModel.ViewModels
             }
         }
 
+        #endregion
+
+        #region Command Handlers
+
+        private void ExecuteOpenFile(object parameter)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = AppResources.Get("OpenFileFilter"),
+                Multiselect = true
+            };
+
+            if (dlg.ShowDialog() != true)
+                return;
+
+            foreach (string cfgPath in dlg.FileNames)
+            {
+                try
+                {
+                    if (!TryLoadFile(cfgPath))
+                        continue;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(string.Format(AppResources.Get("LoadError"), cfgPath, ex.Message), AppResources.Get("ErrorTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void ExecuteCloseFile(object parameter)
+        {
+            if (parameter is ComtradeFile file)
+                OpenFiles.Remove(file);
+        }
+
+        private void ExecuteOpenSettings(object parameter)
+        {
+            RefreshSettingsChannels();
+            OpenSettingsAction?.Invoke();
+        }
+
+        private void ExecuteResetZoom(object parameter) { ResetZoom(); }
+
         private void ExecuteClearRange(object parameter) { ClearRange(); }
+
+        private void ExecuteSelectAll(object parameter) { SelectAll(true); }
+
+        private void ExecuteDeselectAll(object parameter) { SelectAll(false); }
+
+        #endregion
+
+        #region Private Helpers
+
+        private bool TryLoadFile(string cfgPath)
+        {
+            string datPath = System.IO.Path.ChangeExtension(cfgPath, ".dat");
+            if (!System.IO.File.Exists(datPath))
+            {
+                MessageBox.Show(string.Format(AppResources.Get("MissingDatFile"), cfgPath), AppResources.Get("WarningTitle"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            var parseResult = _parser.Parse(cfgPath, datPath);
+            var file = CreateComtradeFile(cfgPath, parseResult);
+            if (file == null)
+                return false;
+
+            OpenFiles.Add(file);
+            SelectedFile = file;
+            return true;
+        }
+
+        private ComtradeFile CreateComtradeFile(string cfgPath, ComtradeParseResult parseResult)
+        {
+            var file = new ComtradeFile
+            {
+                FileName = System.IO.Path.GetFileName(cfgPath),
+                FilePath = cfgPath,
+                StatusText = AppResources.Get("LoadingStatus"),
+                FileInfo = string.Empty
+            };
+
+            file.AllChannels = new ObservableCollection<ChannelVisibilityItem>();
+            int channelIndex = 0;
+            string[] palette = ChannelVisibilityItem.ColorPalette;
+
+            foreach (var ch in parseResult.Channels)
+            {
+                if (!parseResult.Data.TryGetValue(ch.Name, out var points))
+                    continue;
+
+                var plotVm = new ChannelPlotViewModel(ch, points);
+                ApplyChannelColor(plotVm, ch.Name, channelIndex, palette);
+                plotVm.TimeFormat = AppSettings.SelectedTimeFormat;
+
+                var item = CreateChannelVisibilityItem(plotVm, file);
+                file.AllChannels.Add(item);
+                channelIndex++;
+            }
+
+            InitializeFileTimeRange(file);
+            file.UpdateFilteredChannels();
+            file.StatusText = string.Format(AppResources.Get("LoadedChannelsStatus"), file.AllChannels.Count);
+            file.FileInfo = string.Format(AppResources.Get("FileInfoFormat"), file.FileName, file.AllChannels.Count);
+            return file;
+        }
+
+        private void ApplyChannelColor(ChannelPlotViewModel plotVm, string channelName, int channelIndex, IList<string> palette)
+        {
+            if (AppSettings == null)
+                return;
+
+            Color savedColor = AppSettings.GetChannelColor(channelName);
+            bool hasSavedColor = AppSettings.ChannelColors != null &&
+                                 AppSettings.ChannelColors.Any(c => c != null && c.ChannelName == channelName && c.Color != Colors.Gray);
+
+            if (hasSavedColor)
+            {
+                plotVm.Color = savedColor.ToString();
+            }
+            else
+            {
+                string defaultColorHex = palette[channelIndex % palette.Count];
+                plotVm.Color = defaultColorHex;
+            }
+        }
+
+        private ChannelVisibilityItem CreateChannelVisibilityItem(ChannelPlotViewModel plotVm, ComtradeFile file)
+        {
+            var item = new ChannelVisibilityItem(plotVm)
+            {
+                IsVisible = true
+            };
+
+            item.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(ChannelVisibilityItem.IsVisible))
+                    file.UpdateFilteredChannels();
+            };
+
+            return item;
+        }
+
+        private void InitializeFileTimeRange(ComtradeFile file)
+        {
+            var allPoints = file.AllChannels.SelectMany(c => c.PlotViewModel.Points);
+            if (allPoints.Any())
+            {
+                file.TimeMin = allPoints.Min(p => p.Time);
+                file.TimeMax = allPoints.Max(p => p.Time);
+            }
+            else
+            {
+                file.TimeMin = 0;
+                file.TimeMax = 1;
+            }
+        }
+
+        private void SettingsChannel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (!(sender is SettingsChannelItem settingsItem))
+                return;
+
+            if (e.PropertyName == "IsVisible")
+            {
+                var chItem = SelectedFile?.AllChannels.FirstOrDefault(c => c.PlotViewModel.Channel.Name == settingsItem.ChannelName);
+                if (chItem != null)
+                    chItem.IsVisible = settingsItem.IsVisible;
+            }
+
+            if (e.PropertyName == "SelectedColor")
+            {
+                var chItem = SelectedFile?.AllChannels.FirstOrDefault(c => c.PlotViewModel.Channel.Name == settingsItem.ChannelName);
+                if (chItem != null)
+                    chItem.PlotViewModel.Color = settingsItem.SelectedColor.ToString();
+
+                if (AppSettings.ChannelColors == null)
+                    AppSettings.ChannelColors = new ObservableCollection<ChannelColorEntry>();
+
+                var entry = AppSettings.ChannelColors.FirstOrDefault(c => c != null && c.ChannelName == settingsItem.ChannelName);
+                if (entry != null)
+                    entry.Color = settingsItem.SelectedColor;
+                else
+                    AppSettings.ChannelColors.Add(new ChannelColorEntry
+                    {
+                        ChannelName = settingsItem.ChannelName,
+                        Color = settingsItem.SelectedColor
+                    });
+            }
+        }
+
         private void ClearRange()
         {
             RangeLeft = null;
             RangeRight = null;
         }
 
-        private void ExecuteSelectAll(object parameter) { SelectAll(true); }
-        private void ExecuteDeselectAll(object parameter) { SelectAll(false); }
         private void SelectAll(bool select)
         {
-            if (_selectedFile?.AllChannels == null) return;
+            if (_selectedFile?.AllChannels == null)
+                return;
+
             foreach (var item in _selectedFile.AllChannels)
                 item.IsVisible = select;
         }
+
+        private void ApplyCurrentLanguage()
+        {
+            if (_appSettings == null)
+                return;
+
+            AppResources.SetCulture(GetCultureInfo(_appSettings.SelectedLanguage));
+            OnPropertyChanged(nameof(MainWindowTitle));
+            OnPropertyChanged(nameof(OpenCfgButtonText));
+            OnPropertyChanged(nameof(SettingsButtonText));
+            OnPropertyChanged(nameof(ResetZoomButtonText));
+            OnPropertyChanged(nameof(ClearRangeButtonText));
+            OnPropertyChanged(nameof(SettingsWindowTitleText));
+            OnPropertyChanged(nameof(TimeFormatLabelText));
+            OnPropertyChanged(nameof(LanguageLabelText));
+            OnPropertyChanged(nameof(OkButtonText));
+            OnPropertyChanged(nameof(CancelButtonText));
+            OnPropertyChanged(nameof(RussianOptionText));
+            OnPropertyChanged(nameof(EnglishOptionText));
+            OnPropertyChanged(nameof(StatusText));
+            OnPropertyChanged(nameof(FileInfo));
+            OnPropertyChanged(nameof(RangeInfoText));
+            OnPropertyChanged(nameof(ScrollMaximum));
+            OnPropertyChanged(nameof(ScrollValue));
+        }
+
+        private void AppSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(AppSettings.SelectedLanguage))
+                ApplyCurrentLanguage();
+        }
+
+        private static CultureInfo GetCultureInfo(AppLanguage language)
+        {
+            switch (language)
+            {
+                case AppLanguage.Russian:
+                    return new CultureInfo("ru-RU");
+                default:
+                    return new CultureInfo("en-US");
+            }
+        }
+
+        #endregion
     }
 }

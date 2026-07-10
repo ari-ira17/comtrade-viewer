@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using ComtradeViewer.ViewModel.Models;
 using Newtonsoft.Json;
@@ -19,10 +20,19 @@ namespace ComtradeViewer.ViewModel.Services
                 if (File.Exists(SettingsFilePath))
                 {
                     string json = File.ReadAllText(SettingsFilePath);
-                    return JsonConvert.DeserializeObject<AppSettings>(json) ?? new AppSettings();
+                    var settings = JsonConvert.DeserializeObject<AppSettings>(json);
+                    if (settings != null)
+                    {
+                        if (settings.ChannelColors == null)
+                            settings.ChannelColors = new ObservableCollection<ChannelColorEntry>();
+                        return settings;
+                    }
                 }
             }
-            catch { }
+            catch
+            {
+            }
+
             return new AppSettings();
         }
 
@@ -30,11 +40,22 @@ namespace ComtradeViewer.ViewModel.Services
         {
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(SettingsFilePath));
+                if (settings == null)
+                    return;
+
+                if (settings.ChannelColors == null)
+                    settings.ChannelColors = new ObservableCollection<ChannelColorEntry>();
+
+                string directory = Path.GetDirectoryName(SettingsFilePath);
+                if (!string.IsNullOrEmpty(directory))
+                    Directory.CreateDirectory(directory);
+
                 string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
                 File.WriteAllText(SettingsFilePath, json);
             }
-            catch { }
+            catch
+            {
+            }
         }
     }
 }
