@@ -11,9 +11,6 @@ comtrade-viewer/
 │
 ├── .editorconfig                          # Правила форматирования кода
 ├── .gitignore                             # Исключения для Git
-├── .github/                               # CI/CD workflow
-│   └── workflows/
-│       └── ci.yml                         # Настройки непрерывной интеграции
 ├── README.md                              # Описание проекта
 ├── ComtradeViewer.slnx                    # Решение проекта
 │
