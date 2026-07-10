@@ -51,6 +51,7 @@ namespace ComtradeViewer.View.Views
                     case ComtradeViewer.ViewModel.Models.TimeFormat.MinutesSecondsMilliseconds: return AppResources.Get("TimeFormatMinutesSecondsMilliseconds");
                     case ComtradeViewer.ViewModel.Models.TimeFormat.SecondsMilliseconds: return AppResources.Get("TimeFormatSecondsMilliseconds");
                     case ComtradeViewer.ViewModel.Models.TimeFormat.Milliseconds: return AppResources.Get("TimeFormatMilliseconds");
+                    case ComtradeViewer.ViewModel.Models.TimeFormat.Microseconds: return AppResources.Get("TimeFormatMicroseconds");
                 }
             }
             return value?.ToString();

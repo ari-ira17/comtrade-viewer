@@ -176,22 +176,31 @@ namespace ComtradeViewer.View.Views
         /// </summary>
         private string FormatTime(double totalSeconds, TimeFormat fmt)
         {
-            int ms = (int)(totalSeconds * 1000);
-            int minutes = ms / 60000;
-            int seconds = (ms % 60000) / 1000;
-            int millis = ms % 1000;
+            long totalMicroseconds = (long)Math.Round(totalSeconds * 1000000.0);
+            int minutes = (int)(totalMicroseconds / 60000000L);
+            int seconds = (int)((totalMicroseconds % 60000000L) / 1000000L);
+            int millis = (int)((totalMicroseconds % 1000000L) / 1000L);
+            int micros = (int)(totalMicroseconds % 1000L);
 
             switch (fmt)
             {
                 case TimeFormat.MinutesSecondsMilliseconds:
-                    return string.Format("{0:D2}:{1:D2}.{2:D3}", minutes, seconds, millis);
+                    return string.Format("{0:D2}:{1:D2}.{2:D3}.{3:D3}", minutes, seconds, millis, micros);
                 case TimeFormat.SecondsMilliseconds:
-                    return string.Format("{0:D2}.{1:D3}", minutes * 60 + seconds, millis);
+                    return string.Format("{0:D2}.{1:D3}.{2:D3}", minutes * 60 + seconds, millis, micros);
                 case TimeFormat.Milliseconds:
-                    return ms.ToString();
+                    return string.Format("{0:D3}.{1:D3}", millis, micros);
+                case TimeFormat.Microseconds:
+                    return totalMicroseconds.ToString();
                 default:
                     return totalSeconds.ToString("F3");
             }
+        }
+
+        private string FormatTooltipText(double time, double value)
+        {
+            var fmt = _vm?.TimeFormat ?? TimeFormat.MinutesSecondsMilliseconds;
+            return string.Format(AppResources.Get("HoverTooltipFormat"), FormatTime(time, fmt), value);
         }
 
         private void DrawPlot()
@@ -439,7 +448,7 @@ namespace ComtradeViewer.View.Views
                     MaxWidth = 220,
                     Child = new TextBlock
                     {
-                        Text = string.Format(AppResources.Get("HoverTooltipFormat"), sp.Time, sp.Value),
+                        Text = FormatTooltipText(sp.Time, sp.Value),
                         FontSize = 14,
                         TextWrapping = TextWrapping.Wrap,
                         MaxWidth = 220
@@ -544,7 +553,7 @@ namespace ComtradeViewer.View.Views
                             MaxWidth = 220,
                             Child = new TextBlock
                             {
-                                Text = string.Format(AppResources.Get("HoverTooltipFormat"), closest.Time, closest.Value),
+                                Text = FormatTooltipText(closest.Time, closest.Value),
                                 FontSize = 14,
                                 TextWrapping = TextWrapping.Wrap,
                                 MaxWidth = 220

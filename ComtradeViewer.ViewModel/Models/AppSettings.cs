@@ -11,7 +11,8 @@ namespace ComtradeViewer.ViewModel.Models
     {
         MinutesSecondsMilliseconds,
         SecondsMilliseconds,
-        Milliseconds
+        Milliseconds,
+        Microseconds
     }
 
     public enum AppLanguage

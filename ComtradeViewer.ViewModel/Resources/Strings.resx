@@ -82,13 +82,16 @@
     <value>Error loading {0}: {1}</value>
   </data>
   <data name="TimeFormatMinutesSecondsMilliseconds" xml:space="preserve">
-    <value>mm:ss.mmm</value>
+    <value>mm:ss.mmm.µs</value>
   </data>
   <data name="TimeFormatSecondsMilliseconds" xml:space="preserve">
-    <value>ss.mmm</value>
+    <value>ss.mmm.µs</value>
   </data>
   <data name="TimeFormatMilliseconds" xml:space="preserve">
-    <value>ms</value>
+    <value>ms.µs</value>
+  </data>
+  <data name="TimeFormatMicroseconds" xml:space="preserve">
+    <value>µs</value>
   </data>
   <data name="UnitLabel" xml:space="preserve">
     <value>Unit: {0}</value>
@@ -103,7 +106,7 @@
     <value>0</value>
   </data>
   <data name="HoverTooltipFormat" xml:space="preserve">
-    <value>t={0:F6} s
+    <value>t={0}
 val={1:F6}</value>
   </data>
   <data name="RangeMarkerLeft" xml:space="preserve">
