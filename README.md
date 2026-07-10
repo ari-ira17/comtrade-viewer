@@ -27,7 +27,8 @@ comtrade-viewer/
 │
 ├── ComtradeViewer.ViewModel/              # ViewModel, команды, настройки и ресурсы
 │   ├── ComtradeViewer.ViewModel.csproj    # Проект ViewModel
-│   ├── Converters/                        # Конвертеры значений
+│   ├── Converters/                        # Конвертеры
+│   │   └── MediaColorConverter.cs         # Конвертация цвета
 │   ├── Models/                            # Модели настроек и файлов
 │   │   ├── AppSettings.cs                 # Настройки приложения
 │   │   ├── ComtradeFile.cs                # Представление открытого файла
@@ -54,7 +55,7 @@ comtrade-viewer/
     ├── MainWindow.xaml                    # Главное окно
     ├── MainWindow.xaml.cs                 # Код главного окна
     └── Views/                             # Пользовательские представления
-        ├── ChannelPlotControl.cs          # Контрол графика канала
+        ├── ChannelPlotControl.cs          # Контроль графика канала
         ├── SettingsWindow.xaml            # Окно настроек
         └── SettingsWindow.xaml.cs         # Код окна настроек
 
